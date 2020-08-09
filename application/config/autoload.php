@@ -140,4 +140,6 @@ $autoload['language'] = array();
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array();
+$autoload['model'] = array(
+	'bahan_baju_model', 'chat_message_model', 'chat_room_model', 'desain_pesanan_model', 'detail_pesanan_model', 'foto_katalog_model', 'katalog_produk_model', 'pengguna_model', 'pesanan_model', 'ukuran_baju_model', 'web_slider_model'
+);
