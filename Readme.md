@@ -1,1 +1,23 @@
-# Medan Software | Skripsi Codeigniter Starter
+# Medan Software | Tailor Online
+
+## User & Password
+
+> Level Admin
+
+```text
+email 	 : admin@taillor-online.medansoftware.com
+username : admin
+password : admin
+```
+
+> Level Pembeli
+
+```text
+email 	 : customer@taillor-online.medansoftware.com
+username : customer
+password : customer
+```
+
+## Database Relationship
+
+![Database Design](database.PNG)
