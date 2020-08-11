@@ -76,7 +76,7 @@ class Admin extends CI_Controller
 	 */
 	public function chat()
 	{
-
+		$this->template->admin('chat');
 	}
 
 	/**

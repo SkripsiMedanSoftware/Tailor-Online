@@ -20,7 +20,6 @@ class Welcome extends CI_Controller {
 	 */
 	public function index()
 	{
-		// $this->load->view('welcome_message');
-		echo random_string('alnum', 6);
+		$this->load->view('welcome_message');
 	}
 }

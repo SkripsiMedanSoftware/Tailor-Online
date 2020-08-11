@@ -35,6 +35,19 @@
 			</a>
 			<div class="navbar-custom-menu">
 				<ul class="nav navbar-nav">
+					<li class="dropdown notifications-menu">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+							<i class="fa fa-bell-o"></i>
+							<span class="label bg-purple">10</span>
+						</a>
+						<ul class="dropdown-menu">
+							<li class="header">You have 10 notifications</li>
+							<li>
+								<ul class="menu menu-notification"></ul>
+							</li>
+							<li class="footer"><a href="#">View all</a></li>
+						</ul>
+					</li>
 					<li class="dropdown user user-menu">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							<img src="<?php echo (!empty(aktif_sesi()['foto']))?base_url(aktif_sesi()['foto']):base_url('assets/adminlte-2.4.8/dist/img/user2-160x160.jpg') ?> ?>" class="user-image" alt="User Image">
@@ -89,7 +102,7 @@
 				<li class="<?php echo $this->router->fetch_method() == 'katalog_produk'?'active':'' ?>"><a href="<?php echo base_url('admin/katalog_produk') ?>"><i class="fa fa-list-ul"></i> <span>Katalog</span></a></li>
 				<li class="<?php echo $this->router->fetch_method() == 'chat'?'active':'' ?>"><a href="<?php echo base_url('admin/chat') ?>"><i class="fa fa-comments"></i> <span>Chat</span></a></li>
 				<li class="<?php echo $this->router->fetch_method() == 'pengguna'?'active':'' ?>"><a href="<?php echo base_url('admin/pengguna') ?>"><i class="fa fa-users"></i> <span>Pengguna</span></a></li>
-				<li class="treeview <?php echo in_array($this->router->fetch_method(), ['bahan_baju', 'ukuran_baju'])?'active':'' ?>">
+				<li class="treeview <?php echo in_array($this->router->fetch_method(), ['web_slider'])?'active':'' ?>">
 					<a href="#">
 						<i class="fa fa-cogs"></i> <span>Pengaturan</span>
 						<span class="pull-right-container">
@@ -97,8 +110,7 @@
 						</span>
 					</a>
 					<ul class="treeview-menu">
-						<li class="<?php echo $this->router->fetch_method() == 'slider'?'active':'' ?>"><a href="<?php echo base_url('admin/slider') ?>"><i class="fa fa-circle<?php echo $this->router->fetch_method() == 'slider'?'':'-o' ?>"></i> Web Slider</a></li>
-						<li class="<?php echo $this->router->fetch_method() == 'nomor_rekening'?'active':'' ?>"><a href="<?php echo base_url('admin/nomor_rekening') ?>"><i class="fa fa-circle<?php echo $this->router->fetch_method() == 'nomor_rekening'?'':'-o' ?>"></i> Nomor Rekening</a></li>
+						<li class="<?php echo $this->router->fetch_method() == 'web_slider'?'active':'' ?>"><a href="<?php echo base_url('admin/web_slider') ?>"><i class="fa fa-circle<?php echo $this->router->fetch_method() == 'web_slider'?'':'-o' ?>"></i> Web Slider</a></li>
 					</ul>
 				</li>
 			</ul>

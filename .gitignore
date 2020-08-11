@@ -32,4 +32,6 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 
 uploads/*
 !upload/foto_pengguna/index.html
+!upload/desain_pesanan/index.html
+!upload/katalog_produk/index.html
 !uploads/index.html
