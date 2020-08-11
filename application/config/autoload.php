@@ -59,7 +59,7 @@ $autoload['packages'] = array();
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
 $autoload['libraries'] = array(
-	'form_validation', 'session', 'user_agent', 'database',
+	'form_validation', 'session', 'user_agent', 'database', 'cart',
 
 	'template'
 );
@@ -111,7 +111,7 @@ $autoload['helper'] = array(
 | config files.  Otherwise, leave it blank.
 |
 */
-$autoload['config'] = array();
+$autoload['config'] = array('midtrans');
 
 /*
 | -------------------------------------------------------------------
@@ -141,5 +141,5 @@ $autoload['language'] = array();
 |	$autoload['model'] = array('first_model' => 'first');
 */
 $autoload['model'] = array(
-	'bahan_baju_model', 'chat_message_model', 'chat_room_model', 'desain_pesanan_model', 'detail_pesanan_model', 'foto_katalog_model', 'katalog_produk_model', 'pengguna_model', 'pesanan_model', 'ukuran_baju_model', 'web_slider_model'
+	'bahan_baju_model', 'chat_message_model', 'chat_room_model', 'desain_pesanan_model', 'detail_pesanan_model', 'foto_katalog_model', 'harga_per_ukuran_model', 'katalog_produk_model', 'pengguna_model', 'pesanan_model', 'ukuran_baju_model', 'web_slider_model'
 );
