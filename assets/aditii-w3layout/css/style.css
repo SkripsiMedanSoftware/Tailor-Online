@@ -541,8 +541,7 @@ body {
 	font-family: 'Source Sans Pro', sans-serif;
 	font-size: 1em;
 	color: #fefefe;
-	line-height: 1.8em;	
-	text-transform: capitalize;
+	line-height: 1.8em;
 }
 .f_nav li a:hover{
 	color: #ffffff;
