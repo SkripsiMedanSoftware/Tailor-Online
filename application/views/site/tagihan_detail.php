@@ -41,4 +41,45 @@
 			</tbody>
 		</table>
 	</div>
+	<div class="col-lg-6">
+		<table class="table table-hover table-bordered">
+			<tbody id="payment_info"></tbody>
+		</table>
+	</div>
 </div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$.ajax({
+		url: '<?php echo base_url('payment/cek_status/'.$pesanan['uid']) ?>',
+		type: 'GET',
+		dataType: 'JSON',
+		success: function(data){
+			if (data.status == 'success') {
+				if (data.data.payment_type == 'cstore') {
+					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>'+data.data.store+'</td></tr>');
+					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
+					$('#payment_info').append('<tr><td>Kode Pembayaran</td><td>'+data.data.payment_code+'</td></tr>');
+					$('#payment_info').append('<tr><td>Status Pembayaran</td><td>'+data.data.transaction_status+'</td></tr>');
+				} else if (data.data.payment_type == 'credit_card') {
+					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>Kartu Kredit</td></tr>');
+					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
+					if (data.data.fraud_status == 'accept') {
+						$('#payment_info').append('<tr><td>Status Pembayaran</td><td>Selesai</td></tr>');
+					}
+				} else {
+					console.log(data)
+				}
+
+				console.log(data)
+			} else {
+
+			}
+		},
+		error: function(error){
+			console.log(error)
+		}
+	});
+	
+});
+</script>

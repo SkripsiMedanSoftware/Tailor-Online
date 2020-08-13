@@ -20,6 +20,7 @@
 		<script type="text/javascript" src="<?php echo base_url('assets/bootstrap-3.4.1/js/bootstrap.min.js') ?>"></script>
 		<script type="text/javascript" src="<?php echo base_url('assets/aditii-w3layout/') ?>js/modernizr.custom.28468.js"></script>
 		<script type="text/javascript" src="<?php echo base_url('assets/aditii-w3layout/') ?>js/jquery.cslider.js"></script>
+		<script type="text/javascript" src="<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>/socket.io/socket.io.js"></script>
 		<script type="text/javascript">
 		$(function() {
 			$('#da-slider').cslider();
@@ -74,12 +75,6 @@
 							</li>
 						</ul>
 					</div>
-					<div class="h_search">
-						<form>
-							<input type="text" value="">
-							<input type="submit" value="">
-						</form>
-					</div>
 					<div class="clear"></div>
 				</div>
 			</div>
@@ -109,6 +104,7 @@
 							<ul class="nav-list" style="">
 								<li class="nav-item"><a class="<?php echo $this->router->fetch_method() == 'index'?'active':'' ?>" href="<?php echo base_url('site') ?>">Beranda</a></li>
 								<li class="nav-item"><a class="<?php echo $this->router->fetch_method() == 'pesan'?'active':'' ?>" href="<?php echo base_url('site/pesan') ?>">Pesan</a></li>
+								<li class="nav-item"><a class="<?php echo $this->router->fetch_method() == 'masuk'?'active':'' ?>" href="<?php echo base_url('site/masuk') ?>">Masuk</a></li>
 							</ul>
 						</nav>
 						<div class="search_box">
@@ -247,9 +243,7 @@
 		<div class="chatbox chatbox--tray chatbox--empty">
 			<div class="chatbox__title">
 				<h5><a href="#">Customer Service</a></h5>
-				<button class="chatbox__title__tray">
-				<span></span>
-				</button>
+				<button class="chatbox__title__tray"><span></span></button>
 				<button class="chatbox__title__close">
 					<span>
 						<svg viewBox="0 0 12 12" width="12px" height="12px">
@@ -259,28 +253,7 @@
 					</span>
 				</button>
 			</div>
-			<div class="chatbox__body">
-				<div class="chatbox__body__message chatbox__body__message--left">
-					<img src="https://s3.amazonaws.com/uifaces/faces/twitter/brad_frost/128.jpg" alt="Picture">
-					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-				</div>
-				<div class="chatbox__body__message chatbox__body__message--right">
-					<img src="https://s3.amazonaws.com/uifaces/faces/twitter/arashmil/128.jpg" alt="Picture">
-					<p>Nulla vel turpis vulputate, tincidunt lectus sed, porta arcu.</p>
-				</div>
-				<div class="chatbox__body__message chatbox__body__message--left">
-					<img src="https://s3.amazonaws.com/uifaces/faces/twitter/brad_frost/128.jpg" alt="Picture">
-					<p>Curabitur consequat nisl suscipit odio porta, ornare blandit ante maximus.</p>
-				</div>
-				<div class="chatbox__body__message chatbox__body__message--right">
-					<img src="https://s3.amazonaws.com/uifaces/faces/twitter/arashmil/128.jpg" alt="Picture">
-					<p>Cras dui massa, placerat vel sapien sed, fringilla molestie justo.</p>
-				</div>
-				<div class="chatbox__body__message chatbox__body__message--right">
-					<img src="https://s3.amazonaws.com/uifaces/faces/twitter/arashmil/128.jpg" alt="Picture">
-					<p>Praesent a gravida urna. Mauris eleifend, tellus ac fringilla imperdiet, odio dolor sodales libero, vel mattis elit mauris id erat. Phasellus leo nisi, convallis in euismod at, consectetur commodo urna.</p>
-				</div>
-			</div>
+			<div class="chatbox__body"></div>
 			<form class="chatbox__credentials">
 				<div class="form-group">
 					<label for="inputName">Name:</label>
@@ -296,19 +269,23 @@
 		</div>
 		</body>
 		<script type="text/javascript">
-			var user_session = <?php echo json_encode(array(
+			const user_session = <?php echo (!empty(aktif_sesi()))?json_encode(array(
 				'id' => aktif_sesi()['id'],
 				'email' => aktif_sesi()['email'],
 				'nama_lengkap' => aktif_sesi()['nama_lengkap']
-			)); ?>;
+			)):'{}'; ?>;
+
+			const socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>');
+
+			const $chatbox = $('.chatbox'),
+						$chatboxTitle = $('.chatbox__title'),
+						$chatboxTitleClose = $('.chatbox__title__close'),
+						$chatboxCredentials = $('.chatbox__credentials'),
+						$chatboxBody = $('.chatbox__body'),
+						$chatboxMessage = $('.chatbox__message');
 
 			(function($) {
 				$(document).ready(function() {
-					var $chatbox = $('.chatbox'),
-						$chatboxTitle = $('.chatbox__title'),
-						$chatboxTitleClose = $('.chatbox__title__close'),
-						$chatboxCredentials = $('.chatbox__credentials');
-
 					$chatboxTitle.on('click', function() {
 						$chatbox.toggleClass('chatbox--tray');
 					});
@@ -321,17 +298,162 @@
 					$chatbox.on('transitionend', function() {
 						if ($chatbox.hasClass('chatbox--closed')) $chatbox.remove();
 					});
-
-					if (Object.keys(user_session).length > 0) {
-						$chatbox.removeClass('chatbox--empty');
-					} else {
-						$chatboxCredentials.on('submit', function(e) {
-							e.preventDefault();
-							$chatbox.removeClass('chatbox--empty');
-						});
-					}
 			    });
 			})(jQuery);
+
+			function get_chat_messages(room_id = null) {
+				$.ajax({
+					url: '<?php echo base_url('chat/messages/') ?>'+room_id,
+					type: 'GET',
+					dataType: 'JSON',
+					success: function(data) {
+						console.log(data)
+					},
+					error: function(error) {
+
+					}
+				});
+			}
+
+			function join_chat_room(chat_room) {
+				localStorage.setItem('chat_room', JSON.stringify(chat_room));
+				$chatbox.removeClass('chatbox--empty');
+				$chatboxMessage.focus();
+				socket.emit('join_chat_room', chat_room.id);
+			}
+
+			$(document).ready(function() {
+
+				$chatboxTitle.on('click', function() {
+
+					var guest = JSON.parse(localStorage.getItem('guest'));
+					var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+
+					if ($chatbox.hasClass('chatbox--tray') === false) {
+
+						if (chat_room !== null) {
+							$chatbox.removeClass('chatbox--empty');
+							$chatboxMessage.focus();
+							socket.emit('join_chat_room', chat_room.id);
+						}
+
+						if (chat_room === null) {
+							if (Object.keys(user_session).length > 0) {
+								$.ajax({
+									url: '<?php echo base_url('chat/create_room') ?>',
+									type: 'POST',
+									dataType: 'JSON',
+									success: function(data) {
+										if (data.status == 'success') {
+											join_chat_room({
+												id: data.data.id,
+												status: data.data.status
+											})
+										}
+									},
+									error: function(error) {
+										console.log(error)
+									}
+								});
+							} else if (guest !== null) {
+								$.ajax({
+									url: '<?php echo base_url('chat/create_room') ?>',
+									type: 'POST',
+									dataType: 'JSON',
+									data: {
+										full_name: guest.full_name,
+										email: guest.email
+									},
+									success: function(data) {
+										if (data.status == 'success') {
+											join_chat_room({
+												id: data.data.id,
+												status: data.data.status
+											})
+										}
+									},
+									error: function(error) {
+										console.log(error)
+									}
+								});
+							}
+						}
+
+						$chatboxMessage.keypress(function(event) { 
+							if (event.keyCode === 13) { 
+								var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+								var message = $chatboxMessage.val();
+
+								$.ajax({
+									url: '<?php echo base_url('chat/send_message/') ?>'+chat_room.id,
+									type: 'POST',
+									dataType: 'JSON',
+									data: {
+										from: 'customer',
+										message: message
+									},
+									success: function(data) {
+										if (data.status == 'success') {
+											socket.emit('message_chat_room', {
+												chat_room: chat_room,
+												from: 'customer',
+												message: message
+											});
+										}
+									},
+									error: function(error) {
+										console.log(error)
+									}
+								});
+
+								$chatboxMessage.val('');
+							}
+						});
+
+						socket.on('message_chat_room', data => {
+							if (data.from == 'customer') {
+								$chatboxBody.append(
+									'<div class="chatbox__body__message chatbox__body__message--right">'+
+										'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Picture">'+
+										'<p>'+data.message+'</p>'+
+									'</div>'
+								);
+							} else {
+								$chatboxBody.append(
+									'<div class="chatbox__body__message chatbox__body__message--left">'+
+										'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Picture">'+
+										'<p>'+data.message+'</p>'+
+									'</div>'
+								);
+							}
+
+							var direct_chat_message = $('.chatbox__body');
+							direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
+						});
+
+						socket.on('admin_joined_room', data => {
+							var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+							if (chat_room.id == data) {
+								chat_room.status = 'berlangsung';
+							}
+
+							localStorage.setItem('chat_room', JSON.stringify(chat_room));
+						});
+
+						// if (chat_room !== null && Object.keys(user_session).length > 0) {
+						// } else if (chat_room !== null && guest !== null) {
+						// 	$chatbox.removeClass('chatbox--empty');
+						// 	socket.emit('join_chat_room', chat_room);
+						// }
+					}
+				});
+
+				socket.on('disconnect', () => {
+					// $('.chatbox__title h5').css({
+					// 	'background':'red'
+					// });
+				});
+			});
 		</script>
 	</body>
 </html>

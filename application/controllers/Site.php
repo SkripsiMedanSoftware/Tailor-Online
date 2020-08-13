@@ -77,7 +77,6 @@ class Site extends CI_Controller
 
 	/**
 	 * Cek harga
-	 * @return [type] [description]
 	 */
 	public function cek_harga()
 	{
@@ -115,6 +114,12 @@ class Site extends CI_Controller
 		}
 	}
 
+	/**
+	 * Keranjang belanja
+	 * 
+	 * @param  string $option
+	 * @param  string $row_id
+	 */
 	public function keranjang($option = NULL, $row_id = NULL)
 	{
 		switch ($option) {
@@ -195,7 +200,7 @@ class Site extends CI_Controller
 								'catatan' => $this->input->post('catatan'),
 								'harga' => $this->cart->total(),
 								'status' => 'menunggu-konfirmasi',
-								'status_pembayaran' => 'belum-lunas',
+								'status_pembayaran' => 'belum-dibayar',
 								'metode_pembayaran'	=> $this->input->post('metode_pembayaran')
 							));
 
@@ -241,10 +246,14 @@ class Site extends CI_Controller
 			break;
 			
 			default:
+				show_404();
 			break;
 		}
 	}
 
+	/**
+	 * User account
+	 */
 	public function akun()
 	{
 		$this->template->site('akun');
@@ -255,16 +264,40 @@ class Site extends CI_Controller
 	 * 
 	 * @param  integer $pesanan_id
 	 */
-	public function tagihan($pesanan_id = NULL)
+	public function tagihan($pesanan_id = NULL, $options = NULL)
 	{
 		if (!empty($pesanan_id))
 		{
 			$pesanan = $this->pesanan_model->view($pesanan_id);
+
 			if (!empty($pesanan))
 			{
-				$data['page_title'] = 'Detail Tagihan';
-				$data['pesanan'] = $pesanan;
-				$this->template->site('tagihan_detail', $data);
+				switch ($options) {
+					case 'batalkan':
+						if (!in_array($pesanan['status'], ['dalam-proses', 'selesai']) and $pesanan['status'] !== 'dibatalkan')
+						{
+							$this->pesanan_model->update(array('status' => 'dibatalkan'), array('id' => $pesanan['id']));
+							$this->session->set_flashdata('flash_message', array('status' => 'warning', 'message' => 'Pesanan telah dibatalkan'));
+						}
+						else
+						{
+							$this->session->set_flashdata('flash_message', array('status' => 'warning', 'message' => 'Anda tidak dapat membatalkan pesanan'));
+						}
+						redirect(base_url('site/tagihan'), 'refresh');
+					break;
+
+					case 'detail':
+						// $data['page_title'] = 'Detail Tagihan';
+						// $data['pesanan'] = $pesanan;
+						// $this->template->site('tagihan_detail', $data);
+					break;
+					
+					default:
+						$data['page_title'] = 'Detail Tagihan';
+						$data['pesanan'] = $pesanan;
+						$this->template->site('tagihan_detail', $data);
+					break;
+				}
 			}
 			else
 			{
@@ -338,6 +371,47 @@ class Site extends CI_Controller
 		{
 			$data['page_title'] = 'Masuk';
 			$this->template->site('masuk', $data);
+		}
+	}
+
+	/**
+	 * Mendaftar
+	 */
+	public function mendaftar()
+	{
+		if ($this->input->method(TRUE) === 'POST')
+		{
+			$this->form_validation->set_rules('nama_lengkap', 'Nama Lengkap', 'trim|required');
+			$this->form_validation->set_rules('email', 'Email', 'trim|valid_email|required');
+			$this->form_validation->set_rules('seluler', 'Seluler', 'trim|max_length[16]|required');
+			$this->form_validation->set_rules('username', 'Username', 'trim|is_unique[pengguna.username]|required');
+			$this->form_validation->set_rules('password', 'Password', 'trim|required');
+
+			if ($this->form_validation->run() == TRUE)
+			{
+				$this->pengguna_model->create(array(
+					'role' => 'customer',
+					'email' => $this->input->post('email'),
+					'seluler' => $this->input->post('seluler'),
+					'username' => $this->input->post('username'),
+					'password' => md5($this->input->post('password')),
+					'alamat' => $this->input->post('alamat'),
+					'status' => 'aktif'
+				));
+
+				$this->session->set_flashdata('flash_message', array('status' => 'success', 'message' => 'Registrasi berhasil! sekarang anda bisa masuk'));
+				redirect(base_url('site/masuk'), 'refresh');
+			}
+			else
+			{
+				$data['page_title'] = 'Mendaftar';
+				$this->template->site('daftar', $data);
+			}
+		}
+		else
+		{
+			$data['page_title'] = 'Mendaftar';
+			$this->template->site('daftar', $data);
 		}
 	}
 

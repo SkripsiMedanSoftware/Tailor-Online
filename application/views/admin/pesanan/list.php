@@ -53,6 +53,10 @@
 									?><a class="btn btn-xs btn-danger"><?php echo ucfirst($value['status']) ?></a><?php
 								break;
 
+								case 'dibatalkan': 
+									?><a class="btn btn-xs btn-danger"><?php echo ucfirst($value['status']) ?></a><?php
+								break;
+
 								case 'dalam-proses': 
 									?><a class="btn btn-xs btn-primary"><?php echo ucfirst($value['status']) ?></a><?php
 								break;
@@ -82,8 +86,9 @@
 						?>
 					</td>
 					<td>
-						<a class="btn btn-sm btn-flat btn-primary" href="<?php echo base_url('admin/bahan_baju/update/'.$value['id']) ?>">Edit</a>
-						<a class="btn btn-sm btn-flat btn-danger" href="<?php echo base_url('admin/bahan_baju/delete/'.$value['id']) ?>" onclick="return confirm('Konfirmasi penghapusan')">Hapus</a>
+						<a class="btn btn-sm btn-flat btn-info" href="<?php echo base_url('admin/pesanan/detail/'.$value['id']) ?>">Detail</a>
+						<a class="btn btn-sm btn-flat btn-primary" href="<?php echo base_url('admin/pesanan/update/'.$value['id']) ?>">Edit</a>
+						<a class="btn btn-sm btn-flat btn-danger" href="<?php echo base_url('admin/pesanan/delete/'.$value['id']) ?>" onclick="return confirm('Konfirmasi penghapusan')">Hapus</a>
 					</td>
 				</tr>
 			<?php 
@@ -94,6 +99,5 @@
 		</table>
 	</div>
 	<div class="box-footer">
-		<a class="btn btn-primary btn-flat" href="<?php echo base_url('admin/bahan_baju/add') ?>"><i class="fa fa-plus"></i> Tambah</a>
 	</div>
 </div>

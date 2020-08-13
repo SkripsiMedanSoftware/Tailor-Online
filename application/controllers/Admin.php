@@ -79,6 +79,11 @@ class Admin extends CI_Controller
 		$this->template->admin('chat');
 	}
 
+	public function web_slider()
+	{
+		$this->template->admin('chat');
+	}
+
 	/**
 	 * Katalog
 	 * 

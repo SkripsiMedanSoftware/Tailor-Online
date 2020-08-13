@@ -1,3 +1,53 @@
+<div class="row">
+	<div class="col-lg-3 col-xs-6">
+		<div class="small-box bg-aqua">
+			<div class="inner">
+				<h3><?php echo $this->bahan_baju_model->count_all() ?></h3>
+				<p>Bahan Baju</p>
+			</div>
+			<div class="icon">
+				<i class="fa fa-cut"></i>
+			</div>
+			<a href="<?php echo base_url('admin/bahan_baju') ?>" class="small-box-footer">Selengkapnya <i class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<div class="col-lg-3 col-xs-6">
+		<div class="small-box bg-red">
+			<div class="inner">
+				<h3><?php echo $this->ukuran_baju_model->count_all() ?></h3>
+				<p>Ukuran Baju</p>
+			</div>
+			<div class="icon">
+				<i class="fa fa-balance-scale"></i>
+			</div>
+			<a href="<?php echo base_url('admin/ukuran_baju') ?>" class="small-box-footer">Selengkapnya <i class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<div class="col-lg-3 col-xs-6">
+		<div class="small-box bg-yellow">
+			<div class="inner">
+				<h3><?php echo $this->pengguna_model->count_where(array('role' => 'customer')) ?></h3>
+				<p>Customer</p>
+			</div>
+			<div class="icon">
+				<i class="fa fa-users"></i>
+			</div>
+			<a href="<?php echo base_url('admin/pengguna') ?>" class="small-box-footer">Selengkapnya <i class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<div class="col-lg-3 col-xs-6">
+		<div class="small-box bg-green">
+			<div class="inner">
+				<h3><?php echo $this->pesanan_model->count_all() ?></h3>
+				<p>Jumlah Transaksi</p>
+			</div>
+			<div class="icon">
+				<i class="fa fa-line-chart"></i>
+			</div>
+			<a href="<?php echo base_url('admin/pesanan') ?>" class="small-box-footer">Selengkapnya <i class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+</div>
 <?php
 
 /**

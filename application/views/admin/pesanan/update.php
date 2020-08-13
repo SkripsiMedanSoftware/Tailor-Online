@@ -2,18 +2,23 @@
 	<div class="box-header with-border">
 		<h3 class="box-title"><?php echo isset($page_title)?$page_title:''; ?></h3>
 	</div>
-	<form action="<?php echo base_url('admin/bahan_baju/update/'.$bahan_baju['id']) ?>" method="post">
+	<form action="<?php echo base_url('admin/pesanan/update/'.$pesanan['id']) ?>" method="post">
 		<div class="box-body">
 			<div class="col-lg-6">
 				<div class="form-group">
-					<label>Jenis</label>
-					<input class="form-control" type="text" name="jenis" placeholder="Jenis" value="<?php echo set_value('jenis', $bahan_baju['jenis']) ?>">
-					<?php echo form_error('jenis', '<span class="help-block error">', '</span>'); ?>
+					<label>Estimasi Pengerjaan</label>
+					<input class="form-control" type="text" name="estimasi_pengerjaan" placeholder="Estimasi Pengerjaan" value="<?php echo set_value('estimasi_pengerjaan', $pesanan['estimasi_pengerjaan']) ?>">
+					<?php echo form_error('estimasi_pengerjaan', '<span class="help-block error">', '</span>'); ?>
 				</div>
 				<div class="form-group">
-					<label>Warna</label>
-					<input class="form-control" type="text" name="warna" placeholder="Warna" value="<?php echo set_value('warna', $bahan_baju['warna']) ?>">
-					<?php echo form_error('warna', '<span class="help-block error">', '</span>'); ?>
+					<label>Status Pesanan</label>
+					<select class="form-control" name="status_pesanan">
+						<option value="diterima">Diterima</option>
+						<option value="ditolak">Ditolak</option>
+						<option value="dalam-proses">Dalam Proses</option>
+						<option value="selesai">Selesai</option>
+					</select>
+					<?php echo form_error('estimasi_pengerjaan', '<span class="help-block error">', '</span>'); ?>
 				</div>
 			</div>
 		</div>

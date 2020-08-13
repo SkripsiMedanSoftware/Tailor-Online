@@ -56,7 +56,9 @@ class Payment extends CI_Controller
 	}
 
 	/**
-	 * Snap
+	 * Snap token midtrans
+	 * 
+	 * @param  integer $pesanan_id
 	 */
 	public function snap_token($pesanan_id = NULL)
 	{
@@ -73,7 +75,7 @@ class Payment extends CI_Controller
 				$params = array(
 					'transaction_details' => array(
 						'order_id' => $pesanan['uid'],
-						'gross_amount' => $pesanan['harga']
+						'gross_amount' => ceil($pesanan['harga'])
 					),
 					'customer_details' => array(
 						'first_name' => aktif_sesi()['nama_lengkap'],
@@ -86,9 +88,7 @@ class Payment extends CI_Controller
 					'data' => \Midtrans\Snap::getSnapToken($params)
 				)));
 			} catch (Exception $e) {
-
 				$transaction = \Midtrans\Transaction::status($pesanan['uid']);
-
 				$this->pesanan_model->update(array('status_pembayaran' => $transaction->transaction_status), array('uid' => $pesanan['uid']));
 				$this->output->set_content_type('application/json')->set_output(json_encode(array(
 					'status' => 'failed',
@@ -113,7 +113,10 @@ class Payment extends CI_Controller
 	public function cek_status($transation_id = NULL)
 	{
 		try {
-			$this->output->set_content_type('application/json')->set_output(json_encode(\Midtrans\Transaction::status($transation_id)));
+			$this->output->set_content_type('application/json')->set_output(json_encode(array(
+				'status' => 'success',
+				'data' => \Midtrans\Transaction::status($transation_id)
+			)));
 		} catch (Exception $e) {
 			switch ($e->getCode())
 			{

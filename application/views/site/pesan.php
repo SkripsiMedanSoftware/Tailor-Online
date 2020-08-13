@@ -1,4 +1,17 @@
 <div class="row">
+	<div class="col-lg-12">
+	<?php 
+	if ($this->session->flashdata('flash_message'))
+	{
+		?>
+			<div class="alert alert-<?php echo $this->session->flashdata('flash_message')['status'] ?> alert-dismissible" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<?php echo $this->session->flashdata('flash_message')['message'] ?>
+			</div>
+		<?php
+	}
+	?>
+	</div>
 	<?php if ($this->session->userdata('desain_pesanan')) : ?>
 	<div class="col-lg-4">
 		<?php foreach ($this->session->userdata('desain_pesanan') as $value) : ?>
@@ -49,69 +62,71 @@
 		</form>
 	</div>
 	<div class="col-lg-4">
-		<table class="table table-hover table-bordered">
-			<thead>
-				<th>No</th>
-				<th>Bahan</th>
-				<th>Warna</th>
-				<th>Ukuran</th>
-				<th>Jumlah</th>
-				<th>Harga</th>
-				<th>Subtotal</th>
-				<th>Hapus</th>
-			</thead>
-			<tbody>
-				<?php 
-				$i = 1;
-				foreach ($this->cart->contents() as $value) : ?>
+		<form action="<?php echo base_url('site/keranjang/process') ?>" method="post">
+			<table class="table table-hover table-bordered">
+				<thead>
+					<th>No</th>
+					<th>Bahan</th>
+					<th>Warna</th>
+					<th>Ukuran</th>
+					<th>Jumlah</th>
+					<th>Harga</th>
+					<th>Subtotal</th>
+					<th>Hapus</th>
+				</thead>
+				<tbody>
+					<?php 
+					$i = 1;
+					foreach ($this->cart->contents() as $value) : ?>
+						<tr>
+							<td><center><?php echo $i ?></center></td>
+							<td><center><?php echo $value['options']['bahan'] ?></center></td>
+							<td><center><?php echo $value['options']['warna'] ?></center></td>
+							<td><center><?php echo $value['options']['ukuran'] ?></center></td>
+							<td><center><?php echo $value['qty'] ?></center></td>
+							<td><center>Rp.<?php echo number_format($value['price'], 0, ',', '.') ?></center></td>
+							<td><center>Rp.<?php echo number_format($value['subtotal'], 0, ',', '.') ?></center></td>
+							<td><center><a  href="<?php echo base_url('site/keranjang/delete/'.$value['rowid']) ?>" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a></center></td>
+						</tr>
+					<?php 
+					$i++;
+					endforeach;
+					?>
 					<tr>
-						<td><center><?php echo $i ?></center></td>
-						<td><center><?php echo $value['options']['bahan'] ?></center></td>
-						<td><center><?php echo $value['options']['warna'] ?></center></td>
-						<td><center><?php echo $value['options']['ukuran'] ?></center></td>
-						<td><center><?php echo $value['qty'] ?></center></td>
-						<td><center>Rp.<?php echo number_format($value['price'], 0, ',', '.') ?></center></td>
-						<td><center>Rp.<?php echo number_format($value['subtotal'], 0, ',', '.') ?></center></td>
-						<td><center><a  href="<?php echo base_url('site/keranjang/delete/'.$value['rowid']) ?>" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a></center></td>
+						<td colspan="4"><center>Jumlah Total</center></td>
+						<td colspan="4"><b class="pull-right" style="margin-right: 22%;">Rp.<?php echo number_format($this->cart->total(), 0, ',', '.'); ?></b></td>
 					</tr>
-				<?php 
-				$i++;
-				endforeach;
-				?>
-				<tr>
-					<td colspan="4"><center>Jumlah Total</center></td>
-					<td colspan="4"><b class="pull-right" style="margin-right: 22%;">Rp.<?php echo number_format($this->cart->total(), 0, ',', '.'); ?></b></td>
-				</tr>
-				<tr>
-					<td colspan="8"><textarea class="form-control" placeholder="Catatan untuk admin"></textarea></td>
-				</tr>
-				<tr>
-					<td colspan="8">
-						<div class="col-lg-6">
-							<center><a href="<?php echo base_url('site/keranjang/truncate') ?>" class="btn btn-block btn-danger">Batalkan Pesanan</a></center>
-						</div>
-						<div class="col-lg-6">
-							<center><a href="<?php echo base_url('site/keranjang/process') ?>" class="btn btn-block btn-success">Proses Pesanan</a></center>
-						</div>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+					<tr>
+						<td colspan="8"><textarea class="form-control" placeholder="Catatan untuk admin" name="catatan"></textarea></td>
+					</tr>
+					<tr>
+						<td colspan="8">
+							<select class="form-control" name="metode_pembayaran">
+								<option value="">Pilih Metode Pembayaran</option>
+								<option value="midtrans">Online</option>
+								<option value="cod">Bayar Ditempat</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="8">
+							<div class="col-lg-6">
+								<center><a href="<?php echo base_url('site/keranjang/truncate') ?>" class="btn btn-block btn-danger">Batalkan Pesanan</a></center>
+							</div>
+							<div class="col-lg-6">
+								<center>
+									<button type="submit" class="btn btn-block btn-success">Proses Pesanan</button>
+								</center>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
 	</div>
 	<?php else: ?>
 	<form action="<?php echo base_url('site/upload_design') ?>" method="post" enctype="multipart/form-data">
 		<div class="col-lg-4">
-			<?php 
-			if ($this->session->flashdata('flash_message'))
-			{
-				?>
-					<div class="alert alert-<?php echo $this->session->flashdata('flash_message')['status'] ?> alert-dismissible" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<?php echo $this->session->flashdata('flash_message')['message'] ?>
-					</div>
-				<?php
-			}
-			?>
 			<div class="form-group">
 				<label>Unggah Desain</label>
 				<input type="file" name="desain[]" class="form-control" multiple="true">
