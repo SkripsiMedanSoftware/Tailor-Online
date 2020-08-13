@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 11, 2020 at 04:08 PM
+-- Generation Time: Aug 13, 2020 at 01:49 PM
 -- Server version: 10.4.13-MariaDB
 -- PHP Version: 7.3.19
 
@@ -54,11 +54,11 @@ CREATE TABLE `chat_message` (
 
 CREATE TABLE `chat_room` (
   `id` int(11) NOT NULL,
-  `customer` int(4) NOT NULL,
-  `admin` int(4) NOT NULL,
+  `customer` int(4) DEFAULT NULL,
+  `admin` int(4) DEFAULT NULL,
   `customer_name` varchar(20) DEFAULT NULL,
   `customer_email` varchar(20) DEFAULT NULL,
-  `status` enum('selesai','berlangsung') NOT NULL
+  `status` enum('menunggu','berlangsung','selesai') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -170,7 +170,7 @@ CREATE TABLE `pesanan` (
   `estimasi_pengerjaan` int(3) DEFAULT NULL,
   `harga` double DEFAULT NULL,
   `status` enum('dibatalkan','menunggu-konfirmasi','diterima','ditolak','dalam-proses','selesai') NOT NULL,
-  `status_pembayaran` varchar(14) DEFAULT 'belum-dibayar',
+  `status_pembayaran` varchar(14) DEFAULT NULL,
   `metode_pembayaran` enum('midtrans','cod') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
