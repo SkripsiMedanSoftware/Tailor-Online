@@ -58,7 +58,6 @@ class Chat extends CI_Controller
 		}
 	}
 
-
 	/**
 	 * Create new room
 	 */
@@ -115,13 +114,19 @@ class Chat extends CI_Controller
 	 * @param  integer $limit
 	 * @param  integer $offset
 	 */
-	public function messages($room_id = NULL, $limit = 10, $offset = 0)
+	public function messages($room_id = NULL, $limit = 10, $offset = 0, $desc = FALSE)
 	{
 		$chat_room = $this->chat_room_model->view($room_id);
 
 		if (!empty($chat_room))
 		{
-			$messages = $this->chat_message_model->get_where(array('chat_room' => $chat_room['id']));
+			if (filter_var($desc, FILTER_VALIDATE_BOOLEAN))
+			{
+				$this->db->order_by('id', 'desc');
+			}
+
+			$this->db->limit($limit, $offset);
+			$messages = $this->db->get_where('chat_message', array('chat_room' => $chat_room['id']), $limit, $offset)->result_array();
 			$this->output->set_content_type('application/json')->set_output(json_encode(array(
 				'status' => 'success',
 				'data' => array(
@@ -176,7 +181,7 @@ class Chat extends CI_Controller
 		}
 		else
 		{
-
+			show_404();
 		}
 	}
 }
