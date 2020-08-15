@@ -206,6 +206,98 @@ function update_chat_room(room_id, data) {
 	});
 }
 
+function user_info(user_id) {
+	return new Promise((resolve, reject) => {
+		$.ajax({
+			url: '<?php echo base_url('site/user_info/'); ?>'+user_id,
+			type: 'GET',
+			dataType: 'JSON',
+			success: function(data) {
+				resolve(data)
+			},
+			error: function(error) {
+				reject(error)
+			}
+		});
+	})
+}
+
+function chat_room_messages(room_id, limit = 10, offset = 0, desc = false) {
+	$.ajax({
+		url: '<?php echo base_url('chat/messages/'); ?>'+room_id+'/'+limit+'/'+offset+'/'+desc,
+		type: 'GET',
+		dataType: 'JSON',
+		success: async function(data) {
+			if (data.status == 'success') {
+				var customer_info = new Promise((resolve, reject) => {
+					if (data.data.chat_room.customer !== null) {
+						user_info(data.data.chat_room.customer).then(data => {
+							resolve(data.data)
+						}, error => {
+							console.log(error)
+						})
+					} else {
+						resolve('Unknow');
+					}
+				});
+
+				var admin_info = new Promise((resolve, reject) => {
+					if (data.data.chat_room.admin !== null) {
+						user_info(data.data.chat_room.admin).then(data => {
+							resolve(data.data)
+						}, error => {
+							console.log(error)
+						})
+					} else {
+						resolve('Unknow');
+					}
+				});
+
+				var messages = data.data.messages;
+
+				var user = {
+					customer: await customer_info,
+					admin: await admin_info
+				}
+
+				$.each(data.data.messages, function(index, el) {
+					if (el.by == 'customer') {
+						$('.direct-chat-messages[room_id="'+el.chat_room+'"]').append(
+							'<div class="direct-chat-msg">'+
+								'<div class="direct-chat-info clearfix">'+
+									'<span class="direct-chat-name pull-left">'+user.customer.nama_lengkap+'</span>'+
+								'</div>'+
+								'<img class="direct-chat-img" src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Message User Image">'+
+								'<div class="direct-chat-text">'+el.text+'</div>'+
+							'</div>'
+						)
+					} else {
+						$('.direct-chat-messages[room_id="'+el.chat_room+'"]').append(
+							'<div class="direct-chat-msg right">'+
+								'<div class="direct-chat-info clearfix">'+
+									'<span class="direct-chat-name pull-right">'+user.admin.nama_lengkap+'</span>'+
+								'</div>'+
+								'<img class="direct-chat-img" src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Message User Image">'+
+								'<div class="direct-chat-text">'+
+									el.text+
+								'</div>'+
+							'</div>'
+						)
+					}
+				});
+
+				var direct_chat_message = $('.direct-chat-messages[room_id="'+room_id+'"]');
+				direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
+			} else {
+
+			}
+		},
+		error: function(error) {
+
+		}
+	});
+}
+
 $(document).ready(function() {
 	var socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>'); // socket.io init
 	var admin_notifications = (localStorage.getItem('admin_notification') == null)?[]:JSON.parse(localStorage.getItem('admin_notification')); // saved notification in local storage
@@ -222,16 +314,16 @@ $(document).ready(function() {
 
 	if (joined_chat_rooms.length > 0) {
 		$.each(joined_chat_rooms, function(index, val) {
-			chat_room_info(val);
+			var router_metod = '<?php echo $this->router->fetch_method(); ?>'
+			if (router_metod == 'chat') {
+				chat_room_info(val);
+			}
 		});
 	}
 
 	if (admin_notifications == null) {
 		localStorage.setItem('admin_notification', []);
 	}
-
-
-
 
 	function chat_room_info(room_id) {
 		$.ajax({
@@ -258,9 +350,9 @@ $(document).ready(function() {
 									'<div class="box-footer">'+
 										'<form action="#" method="post" class="send_message" room_id="'+room_id+'">'+
 											'<div class="input-group">'+
-												'<input type="text" room_id="'+room_id+'" placeholder="Type Message ..." class="text_message form-control">'+
+												'<input type="text" room_id="'+room_id+'" placeholder="Tulis pesan disini ..." class="text_message form-control">'+
 												'<span class="input-group-btn">'+
-												'<button type="button" class="btn btn-primary btn-flat">Send</button>'+
+												'<button type="button" class="btn btn-primary btn-flat">Kirim</button>'+
 												'</span>'+
 											'</div>'+
 										'</form>'+
@@ -268,6 +360,8 @@ $(document).ready(function() {
 								'</div>'+
 							'</div>'
 						);
+
+						chat_room_messages(room_id, 1000, 0, false)
 					}
 
 					$('.send_message').on('submit',(function(e){
@@ -299,7 +393,6 @@ $(document).ready(function() {
 											'<div class="direct-chat-msg right">'+
 												'<div class="direct-chat-info clearfix">'+
 													'<span class="direct-chat-name pull-right"><?php echo aktif_sesi()['nama_lengkap'] ?></span>'+
-													'<span class="direct-chat-timestamp pull-left">03 Aug 2:05 pm</span>'+
 												'</div>'+
 												'<img class="direct-chat-img" src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Message User Image">'+
 												'<div class="direct-chat-text">'+
@@ -327,9 +420,6 @@ $(document).ready(function() {
 			}
 		});
 	}
-
-
-	
 
 	socket.on('admin_notification', data => {
 		switch (data.type) {
@@ -377,7 +467,6 @@ $(document).ready(function() {
 				'<div class="direct-chat-msg">'+
 					'<div class="direct-chat-info clearfix">'+
 						'<span class="direct-chat-name pull-left">Alexander Pierce</span>'+
-						'<span class="direct-chat-timestamp pull-right">23 Jan 2:00 pm</span>'+
 					'</div>'+
 					'<img class="direct-chat-img" src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Message User Image">'+
 					'<div class="direct-chat-text">'+data.message+'</div>'+

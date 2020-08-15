@@ -301,13 +301,31 @@
 			    });
 			})(jQuery);
 
-			function get_chat_messages(room_id = null) {
+			function get_chat_messages(room_id, limit = 10, offset = 0, desc = false) {
 				$.ajax({
-					url: '<?php echo base_url('chat/messages/') ?>'+room_id,
+					url: '<?php echo base_url('chat/messages/'); ?>'+room_id+'/'+limit+'/'+offset+'/'+desc,
 					type: 'GET',
 					dataType: 'JSON',
 					success: function(data) {
-						console.log(data)
+						if (data.status == 'success') {
+							$.each(data.data.messages, function(index, el) {
+								if (el.by == 'customer') {
+									$chatboxBody.append(
+										'<div class="chatbox__body__message chatbox__body__message--right">'+
+											'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Picture">'+
+											'<p>'+el.text+'</p>'+
+										'</div>'
+									);
+								} else {
+									$chatboxBody.append(
+										'<div class="chatbox__body__message chatbox__body__message--left">'+
+											'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Picture">'+
+											'<p>'+el.text+'</p>'+
+										'</div>'
+									);
+								}
+							});
+						}
 					},
 					error: function(error) {
 
@@ -324,6 +342,14 @@
 
 			$(document).ready(function() {
 
+				var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+
+				if (chat_room !== null) {
+					get_chat_messages(chat_room.id, 1000, 0);
+				} else {
+					console.log(chat_room)
+				}
+
 				$chatboxTitle.on('click', function() {
 
 					var guest = JSON.parse(localStorage.getItem('guest'));
@@ -334,6 +360,9 @@
 						if (chat_room !== null) {
 							$chatbox.removeClass('chatbox--empty');
 							$chatboxMessage.focus();
+							
+							var direct_chat_message = $('.chatbox__body');
+							direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
 							socket.emit('join_chat_room', chat_room.id);
 						}
 
@@ -348,7 +377,7 @@
 											join_chat_room({
 												id: data.data.id,
 												status: data.data.status
-											})
+											});
 										}
 									},
 									error: function(error) {
@@ -428,6 +457,8 @@
 							}
 
 							var direct_chat_message = $('.chatbox__body');
+							console.log(direct_chat_message[0].scrollTop)
+							console.log(direct_chat_message[0].scrollHeight)
 							direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
 						});
 

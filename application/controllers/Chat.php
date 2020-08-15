@@ -84,6 +84,11 @@ class Chat extends CI_Controller
 		return $this->chat_room_model->view($new_room);
 	}
 
+	/**
+	 * Get room info
+	 * 
+	 * @param  integer $roomd_id
+	 */
 	public function room_info($room_id = NULL)
 	{
 		$chat_room = $this->chat_room_model->view($room_id);
@@ -141,6 +146,11 @@ class Chat extends CI_Controller
 		}
 	}
 
+	/**
+	 * Update chat room
+	 * 
+	 * @param integer $room_id
+	 */
 	public function update_chat_room($room_id = NULL)
 	{
 		$this->chat_room_model->update($this->input->post(), array('id' => $room_id));

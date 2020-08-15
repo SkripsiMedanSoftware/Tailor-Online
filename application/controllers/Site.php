@@ -260,6 +260,30 @@ class Site extends CI_Controller
 	}
 
 	/**
+	 * Get user info
+	 * 
+	 * @param  integer $id;
+	 */
+	public function user_info($id = NULL)
+	{
+		$user = $this->pengguna_model->view($id);
+
+		if (!empty($user))
+		{
+			$this->output->set_content_type('application/json')->set_output(json_encode(array(
+				'status' => 'success',
+				'data' => $user
+			)));
+		}
+		else
+		{
+			$this->output->set_content_type('application/json')->set_output(json_encode(array(
+				'status' => 'user_not_found'
+			)));
+		}
+	}
+
+	/**
 	 * Tagihan
 	 * 
 	 * @param  integer $pesanan_id
