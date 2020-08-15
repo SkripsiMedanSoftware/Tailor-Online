@@ -24,8 +24,6 @@ io.on('connect', socket => {
 		socket.join(room);
 		// emit to joined client
 		socket.on('message_chat_room', data => {
-			// console.log('atas')
-			// console.log(data);
 			socket.emit('message_chat_room', {
 				room: data.room,
 				from: data.from,
@@ -40,8 +38,6 @@ io.on('connect', socket => {
 
 	// chat room global event message_chat_room
 	socket.on('message_chat_room', data => {
-		// console.log('bawah')
-		// console.log(data);
 		if (data.chat_room !== null) {
 			if (data.chat_room.status == 'menunggu') {
 				io.of('/').emit('admin_notification', {
@@ -57,6 +53,11 @@ io.on('connect', socket => {
 			});
 		}
 	});
-})
+
+	socket.on('close_chat_room', data => {
+		socket.to(data).emit('close_chat_room', data);
+	});
+});
 
 io.listen(server.listen(process.env.PORT)); // Socket.io listening on HTTP / Default port
+// io.listen(server.listen(8081)); // Socket.io listening on HTTP / Default port

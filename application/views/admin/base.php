@@ -317,8 +317,8 @@ $(document).ready(function() {
 									'<div class="box-header with-border">'+
 										'<h3 class="box-title">'+chat_room.data.customer_name+'</h3>'+
 										'<div class="box-tools pull-right">'+
-											'<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>'+
-											'<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>'+
+											'<button type="button" class="btn btn-box-tool" room_id="'+room_id+'" data-widget="collapse"><i class="fa fa-minus"></i></button>'+
+											'<button type="button" class="btn btn-box-tool" room_id="'+room_id+'" data-widget="remove"><i class="fa fa-times"></i></button>'+
 										'</div>'+
 									'</div>'+
 									'<div class="box-body">'+
@@ -443,6 +443,16 @@ $(document).ready(function() {
 		if (router_metod !== 'chat') {
 			window.location.href = '<?php echo base_url('admin/chat'); ?>'
 		}
+	});
+
+	$(document).on('click', '.btn-box-tool', function(event) {
+		event.preventDefault();
+		var room_id = $(this).attr('room_id');
+		socket.emit('close_chat_room', room_id);
+		// joined_chat_rooms.splice(joined_chat_rooms.indexOf(room_id), 1);
+		// localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));
+		// $(this).parent().parent().parent().remove();
+		// window.location.reload();
 	});
 
 	socket.on('message_chat_room', data => {

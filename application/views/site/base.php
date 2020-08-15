@@ -277,6 +277,10 @@
 
 			const socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>');
 
+				socket.on('close_chat_room', data => {
+					console.log('close')
+				});
+
 			const $chatbox = $('.chatbox'),
 						$chatboxTitle = $('.chatbox__title'),
 						$chatboxTitleClose = $('.chatbox__title__close'),
@@ -293,6 +297,7 @@
 					$chatboxTitleClose.on('click', function(e) {
 						e.stopPropagation();
 						$chatbox.addClass('chatbox--closed');
+						localStorage.removeItem('chat_room');
 					});
 
 					$chatbox.on('transitionend', function() {
@@ -325,6 +330,9 @@
 									);
 								}
 							});
+
+							var direct_chat_message = $('.chatbox__body');
+							direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
 						}
 					},
 					error: function(error) {
@@ -343,12 +351,50 @@
 			$(document).ready(function() {
 
 				var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+				if (chat_room !== null && Object.keys(user_session).length > 0) {
+					$chatbox.removeClass('chatbox--tray chatbox--empty');
+					join_chat_room(chat_room);
+				} else if (chat_room !== null && guest !== null) {
+					$chatbox.removeClass('chatbox--tray chatbox--empty');
+					join_chat_room(chat_room);
+				}
 
 				if (chat_room !== null) {
 					get_chat_messages(chat_room.id, 1000, 0);
 				} else {
 					console.log(chat_room)
 				}
+
+				$chatboxMessage.keypress(function(event) { 
+					if (event.keyCode === 13) { 
+						var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+						var message = $chatboxMessage.val();
+
+						$.ajax({
+							url: '<?php echo base_url('chat/send_message/') ?>'+chat_room.id,
+							type: 'POST',
+							dataType: 'JSON',
+							data: {
+								from: 'customer',
+								message: message
+							},
+							success: function(data) {
+								if (data.status == 'success') {
+									socket.emit('message_chat_room', {
+										chat_room: chat_room,
+										from: 'customer',
+										message: message
+									});
+								}
+							},
+							error: function(error) {
+								console.log(error)
+							}
+						});
+
+						$chatboxMessage.val('');
+					}
+				});
 
 				$chatboxTitle.on('click', function() {
 
@@ -407,76 +453,43 @@
 								});
 							}
 						}
-
-						$chatboxMessage.keypress(function(event) { 
-							if (event.keyCode === 13) { 
-								var chat_room = JSON.parse(localStorage.getItem('chat_room'));
-								var message = $chatboxMessage.val();
-
-								$.ajax({
-									url: '<?php echo base_url('chat/send_message/') ?>'+chat_room.id,
-									type: 'POST',
-									dataType: 'JSON',
-									data: {
-										from: 'customer',
-										message: message
-									},
-									success: function(data) {
-										if (data.status == 'success') {
-											socket.emit('message_chat_room', {
-												chat_room: chat_room,
-												from: 'customer',
-												message: message
-											});
-										}
-									},
-									error: function(error) {
-										console.log(error)
-									}
-								});
-
-								$chatboxMessage.val('');
-							}
-						});
-
-						socket.on('message_chat_room', data => {
-							if (data.from == 'customer') {
-								$chatboxBody.append(
-									'<div class="chatbox__body__message chatbox__body__message--right">'+
-										'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Picture">'+
-										'<p>'+data.message+'</p>'+
-									'</div>'
-								);
-							} else {
-								$chatboxBody.append(
-									'<div class="chatbox__body__message chatbox__body__message--left">'+
-										'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Picture">'+
-										'<p>'+data.message+'</p>'+
-									'</div>'
-								);
-							}
-
-							var direct_chat_message = $('.chatbox__body');
-							console.log(direct_chat_message[0].scrollTop)
-							console.log(direct_chat_message[0].scrollHeight)
-							direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
-						});
-
-						socket.on('admin_joined_room', data => {
-							var chat_room = JSON.parse(localStorage.getItem('chat_room'));
-							if (chat_room.id == data) {
-								chat_room.status = 'berlangsung';
-							}
-
-							localStorage.setItem('chat_room', JSON.stringify(chat_room));
-						});
-
-						// if (chat_room !== null && Object.keys(user_session).length > 0) {
-						// } else if (chat_room !== null && guest !== null) {
-						// 	$chatbox.removeClass('chatbox--empty');
-						// 	socket.emit('join_chat_room', chat_room);
-						// }
 					}
+				});
+
+				socket.on('message_chat_room', data => {
+					console.log(data)
+					if (data.from == 'customer') {
+						$chatboxBody.append(
+							'<div class="chatbox__body__message chatbox__body__message--right">'+
+								'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Picture">'+
+								'<p>'+data.message+'</p>'+
+							'</div>'
+						);
+					} else {
+						$chatboxBody.append(
+							'<div class="chatbox__body__message chatbox__body__message--left">'+
+								'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Picture">'+
+								'<p>'+data.message+'</p>'+
+							'</div>'
+						);
+					}
+
+					var direct_chat_message = $('.chatbox__body');
+					direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
+				});
+
+				socket.on('admin_joined_room', data => {
+					var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+					if (chat_room.id == data) {
+						chat_room.status = 'berlangsung';
+					}
+
+					localStorage.setItem('chat_room', JSON.stringify(chat_room));
+				});
+
+				socket.on('close_chat_room', data => {
+					localStorage.removeItem('chat_room');
+					window.location.reload();
 				});
 
 				socket.on('disconnect', () => {
