@@ -36,39 +36,13 @@
 			</a>
 			<div class="navbar-custom-menu">
 				<ul class="nav navbar-nav">
-					<li class="dropdown messages-menu">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-							<i class="fa fa-envelope-o"></i>
-							<span class="label label-success">4</span>
-						</a>
-						<ul class="dropdown-menu">
-							<li class="header">You have 4 messages</li>
-							<li>
-								<ul class="menu">
-									<li>
-										<a href="#">
-											<div class="pull-left">
-												<img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
-											</div>
-											<h4>
-												Support Team
-												<small><i class="fa fa-clock-o"></i> 5 mins</small>
-											</h4>
-											<p>Why not buy a new awesome theme?</p>
-										</a>
-									</li>
-								</ul>
-							</li>
-							<li class="footer"><a href="#">See All Messages</a></li>
-						</ul>
-					</li>
 					<li class="dropdown notifications-menu">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							<i class="fa fa-bell-o"></i>
-							<span class="label bg-purple">10</span>
+							<span class="label bg-purple"><b class="notifications_count">0</b></span>
 						</a>
 						<ul class="dropdown-menu">
-							<li class="header">You have 10 notifications</li>
+							<li class="header">You have <b class="notifications_count_text">0</b> notifications</li>
 							<li>
 								<ul class="menu menu-notification"></ul>
 							</li>
@@ -303,6 +277,9 @@ $(document).ready(function() {
 	var admin_notifications = (localStorage.getItem('admin_notification') == null)?[]:JSON.parse(localStorage.getItem('admin_notification')); // saved notification in local storage
 	var joined_chat_rooms = (localStorage.getItem('joined_chat_room') == null)?[]:JSON.parse(localStorage.getItem('joined_chat_room')); // saved joined room in local storage
 
+	$('.notifications_count').text(admin_notifications.length)
+	$('.notifications_count_text').text(admin_notifications.length)
+
 	// checkup admin notification from local storage
 	if (admin_notifications.length > 0) {
 		$.each(admin_notifications, function(index, val) {
@@ -431,6 +408,8 @@ $(document).ready(function() {
 					});
 					localStorage.setItem('admin_notification', JSON.stringify(admin_notifications));
 					$('.menu-notification').prepend('<li class="new_chat_room" data_id="'+data.data_id+'"><a href="#"><i class="fa fa-users text-aqua"></i> Chat room baru #'+data.data_id+'</a></li>');
+					$('.notifications_count').text(parseInt($('.notifications_count').text())+1);
+					$('.notifications_count_text').text($('.notifications_count').text());
 				}
 			break;
 
@@ -459,6 +438,11 @@ $(document).ready(function() {
 
 		localStorage.setItem('admin_notification', JSON.stringify(admin_notifications));
 		localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));
+
+		var router_metod = '<?php echo $this->router->fetch_method(); ?>'
+		if (router_metod !== 'chat') {
+			window.location.href = '<?php echo base_url('admin/chat'); ?>'
+		}
 	});
 
 	socket.on('message_chat_room', data => {
