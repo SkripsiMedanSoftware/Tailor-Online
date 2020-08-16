@@ -449,10 +449,10 @@ $(document).ready(function() {
 		event.preventDefault();
 		var room_id = $(this).attr('room_id');
 		socket.emit('close_chat_room', room_id);
-		// joined_chat_rooms.splice(joined_chat_rooms.indexOf(room_id), 1);
-		// localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));
-		// $(this).parent().parent().parent().remove();
-		// window.location.reload();
+		joined_chat_rooms.splice(joined_chat_rooms.indexOf(room_id), 1);
+		localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));
+		$(this).parent().parent().parent().remove();
+		window.location.reload();
 	});
 
 	socket.on('message_chat_room', data => {
@@ -474,7 +474,6 @@ $(document).ready(function() {
 			direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
 		}
 	});
-
 
 	$('.datepicker').datepicker({
 		autoclose: true,

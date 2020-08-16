@@ -14,6 +14,9 @@ class Admin extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		if (!empty(aktif_sesi()) && aktif_sesi()['role'] !== 'admin') {
+			redirect(base_url(), 'refresh');
+		}
 	}
 
 	public function index()
