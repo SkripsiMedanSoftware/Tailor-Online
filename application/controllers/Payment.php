@@ -23,35 +23,53 @@ class Payment extends CI_Controller
 
 	public function index()
 	{
-		$notif = new \Midtrans\Notification();
+		$order_id = $this->input->get('order_id');
+		$status_code = $this->input->get('status_code');
+		$transaction_status = $this->input->get('transaction_status');
 
-		$transaction = $notif->transaction_status;
-		$fraud = $notif->fraud_status;
+		try {
+			
+			$transaction = \Midtrans\Transaction::status($this->input->get('order_id'));
 
-		error_log("Order ID $notif->order_id: "."transaction status = $transaction, fraud staus = $fraud");
+			switch ($transaction->payment_type) {
+				case 'cstore':
+					switch ($transaction->transaction_status) {
+						case 'pending':
+						break;
+						
+						default:
+						break;
+					}
+				break;
 
-		echo "<pre>";
-		print_r ($transaction);
-		echo "</pre>";
+				case 'credit_card':
+					switch ($transaction->fraud_status) {
+						case 'accept':
+						break;
+						
+						default:
+						break;
+					}
+				break;
+				
+				default:
+				break;
+			}
 
-		if ($transaction == 'capture') {
-		    if ($fraud == 'challenge') {
-		      // TODO Set payment status in merchant's database to 'challenge'
-		    }
-		    else if ($fraud == 'accept') {
-		      // TODO Set payment status in merchant's database to 'success'
-		    }
-		}
-		else if ($transaction == 'cancel') {
-		    if ($fraud == 'challenge') {
-		      // TODO Set payment status in merchant's database to 'failure'
-		    }
-		    else if ($fraud == 'accept') {
-		      // TODO Set payment status in merchant's database to 'failure'
-		    }
-		}
-		else if ($transaction == 'deny') {
-		      // TODO Set payment status in merchant's database to 'failure'
+			$this->pesanan_model->update(array('status_pembayaran' => $transaction_status), array('uid' => $order_id));
+			$data['transaction'] = $transaction;
+			$data['page_title'] = 'Pembayaran Selesai';
+			$this->template->site('payment_finish', $data);
+		} catch (Exception $e) {
+			switch ($e->getCode())
+			{
+				case 404:
+					show_404();
+				break;
+				
+				default:
+				break;
+			}
 		}
 	}
 
