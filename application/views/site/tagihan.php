@@ -94,6 +94,21 @@
 </div>
 
 <script type="text/javascript">
+
+function update_status_pesanan(data) {
+	$.ajax({
+		url: '<?php echo base_url('payment/update_pesanan') ?>',
+		type: 'GET',
+		dataType: 'JSON',
+		data: data,
+		success: function(data) {
+
+		},
+		error: function(error) {
+
+		}
+	});
+}
 $(document).on('click', '.pay', function(event) {
 	event.preventDefault();
 	var data_id = $(this).attr('data_id');
@@ -103,7 +118,27 @@ $(document).on('click', '.pay', function(event) {
 		dataType: 'JSON',
 		success: function(data) {
 			if (data.status == 'success') {
-				snap.pay(data.data);
+				snap.pay(data.data,{
+					onSuccess: function(result) {
+						console.log('success');
+						console.log(result);
+					},
+					onPending: function(result) {
+						console.log('pending');
+						update_status_pesanan(result.order_id, {
+							status_pembayaran: 'pending',
+							snap_response: JSON.stringify(result)
+						});
+						console.log(result);
+					},
+					onError: function(result) {
+						console.log('error');
+						console.log(result);
+					},
+					onClose: function() {
+						console.log('customer closed the popup without finishing the payment');
+					}
+				});
 			} else {
 				window.location.reload();
 			}

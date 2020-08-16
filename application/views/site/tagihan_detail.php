@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="col-lg-12">
-		<h1>Detail Pesanan #<?php echo $pesanan['uid'] ?></h1>
+		<h1>Detail Transaksi #<?php echo $pesanan['uid'] ?></h1>
 	</div>
 	<div class="col-lg-6">
 		<h3>Desain</h3>
@@ -56,17 +56,22 @@ $(document).ready(function(){
 		dataType: 'JSON',
 		success: function(data){
 			if (data.status == 'success') {
-				if (data.data.payment_type == 'cstore') {
+				 if (data.data.payment_type == 'credit_card') {
+					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>Kartu Kredit</td></tr>');
+					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
+					if (data.data.fraud_status == 'accept') {
+						$('#payment_info').append('<tr><td>Status Pembayaran</td><td>Telah Dibayar</td></tr>');
+					}
+				} else if (data.data.payment_type == 'cstore') {
 					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>'+data.data.store+'</td></tr>');
 					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
 					$('#payment_info').append('<tr><td>Kode Pembayaran</td><td>'+data.data.payment_code+'</td></tr>');
 					$('#payment_info').append('<tr><td>Status Pembayaran</td><td>'+data.data.transaction_status+'</td></tr>');
-				} else if (data.data.payment_type == 'credit_card') {
-					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>Kartu Kredit</td></tr>');
+				} else if (data.data.payment_type == 'x') {
+					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>'+data.data.store+'</td></tr>');
 					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
-					if (data.data.fraud_status == 'accept') {
-						$('#payment_info').append('<tr><td>Status Pembayaran</td><td>Selesai</td></tr>');
-					}
+					$('#payment_info').append('<tr><td>Kode Pembayaran</td><td>'+data.data.payment_code+'</td></tr>');
+					$('#payment_info').append('<tr><td>Status Pembayaran</td><td>'+data.data.transaction_status+'</td></tr>');
 				} else {
 					console.log(data)
 				}

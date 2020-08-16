@@ -43,12 +43,8 @@ class Payment extends CI_Controller
 				break;
 
 				case 'credit_card':
-					switch ($transaction->fraud_status) {
-						case 'accept':
-						break;
-						
-						default:
-						break;
+					if ($transaction->fraud_status == 'accept') {
+						$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $order_id));
 					}
 				break;
 				
@@ -56,7 +52,6 @@ class Payment extends CI_Controller
 				break;
 			}
 
-			$this->pesanan_model->update(array('status_pembayaran' => $transaction_status), array('uid' => $order_id));
 			$data['transaction'] = $transaction;
 			$data['page_title'] = 'Pembayaran Selesai';
 			$this->template->site('payment_finish', $data);
@@ -70,6 +65,19 @@ class Payment extends CI_Controller
 				default:
 				break;
 			}
+		}
+	}
+
+	public function update_pesanan($uid = NULL)
+	{
+		if (!empty($uid))
+		{
+			$this->pesanan_model->update($this->input->post(), array('uid' => $uid));
+			$this->output->set_content_type('application/json')->set_output(json_encode(array('status' => 'success')));
+		}
+		else
+		{
+			show_404();
 		}
 	}
 
