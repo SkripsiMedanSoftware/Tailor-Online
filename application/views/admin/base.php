@@ -448,6 +448,9 @@ $(document).ready(function() {
 	$(document).on('click', '.btn-box-tool', function(event) {
 		event.preventDefault();
 		var room_id = $(this).attr('room_id');
+		update_chat_room(room_id, {
+			status: 'selesai'
+		});
 		socket.emit('close_chat_room', room_id);
 		joined_chat_rooms.splice(joined_chat_rooms.indexOf(room_id), 1);
 		localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));

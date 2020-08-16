@@ -75,6 +75,22 @@ class Admin extends CI_Controller
 	}
 
 	/**
+	 * Update status pesanan
+	 */
+	public function update_status_pesanan($id = NULL, $status = '')
+	{
+		if (!empty($id) && !empty($status))
+		{
+			$this->pesanan_model->update(array('status' => $status), array('id' => $id));
+			redirect(base_url('admin/pesanan'), 'refresh');
+		}
+		else
+		{
+			show_404();
+		}
+	}
+
+	/**
 	 * Chat
 	 */
 	public function chat()

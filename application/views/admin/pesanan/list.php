@@ -40,8 +40,8 @@
 					<td>Rp.<?php echo number_format($value['harga'], 0, ',', '.') ?></td>
 					<td>
 						<?php if ($value['status'] == 'menunggu-konfirmasi') : ?>
-							<a class="btn btn-xs btn-success">Terima Pesanan</a>
-							<a class="btn btn-xs btn-danger">Tolak Pesanan</a>
+							<a href="<?php echo base_url('admin/update_status_pesanan/'.$value['id'].'/diterima') ?>" class="btn btn-xs btn-success">Terima Pesanan</a>
+							<a href="<?php echo base_url('admin/update_status_pesanan/'.$value['id'].'/ditolak') ?>" class="btn btn-xs btn-danger">Tolak Pesanan</a>
 						<?php else : ?>
 							<?php
 							switch ($value['status']) {
