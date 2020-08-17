@@ -83,14 +83,16 @@
 							<?php if (isset($snap_response->pdf_url)): ?>
 								<a href="<?php echo $snap_response->pdf_url; ?>" class="btn btn-xs btn-primary">Instruksi</a>
 							<?php endif; ?>
-							<a class="btn btn-xs btn-info cek_pembayaran" uid="<?php echo $value['uid']; ?>">Cek Pembayaran</a>
+							<?php if ($value['status_pembayaran'] !== 'lunas'): ?>
+								<a class="btn btn-xs btn-info cek_pembayaran" uid="<?php echo $value['uid']; ?>">Cek Pembayaran</a>
+							<?php endif ?>
 							<?php if ($value['status'] == 'diterima'  && $value['status_pembayaran'] == 'belum-dibayar') : ?>
 								<a href="<?php echo base_url('site/tagihan/'.$value['id'].'/batalkan') ?>" class="btn btn-xs btn-danger">Batalkan</a>
 								<?php if ($value['metode_pembayaran'] == 'midtrans') :?>
 									<button class="btn pay btn-xs btn-success" data_id="<?php echo $value['id'] ?>">Bayar</button>
 								<?php endif; ?>
 								<?php else: ?>
-									<?php if (!in_array($value['status'], ['dalam-proses', 'selesai']) and $value['status'] !== 'dibatalkan') : ?>
+									<?php if (!in_array($value['status'], ['dalam-proses', 'selesai', 'dibatalkan']) AND $value['status_pembayaran'] !== 'lunas') : ?>
 										<a href="<?php echo base_url('site/tagihan/'.$value['id'].'/batalkan') ?>" class="btn btn-xs btn-danger">Batalkan</a>
 									<?php endif; ?>
 							<?php endif ?>
@@ -128,7 +130,8 @@ $(document).on('click', '.cek_pembayaran', function(event) {
 		type: 'GET',
 		dataType: 'JSON',
 		success: function(data) {
-			window.location.reload();
+			console.log(data)
+			// window.location.reload();
 		},
 		error: function(error) {
 
@@ -147,8 +150,10 @@ $(document).on('click', '.pay', function(event) {
 			if (data.status == 'success') {
 				snap.pay(data.data,{
 					onSuccess: function(result) {
-						console.log('success');
-						console.log(result);
+						update_status_pesanan(result.order_id, {
+							status_pembayaran: 'lunas',
+							snap_response: JSON.stringify(result)
+						});
 					},
 					onPending: function(result) {
 						update_status_pesanan(result.order_id, {

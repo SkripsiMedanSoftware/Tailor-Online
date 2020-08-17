@@ -24,37 +24,30 @@ class Payment extends CI_Controller
 	public function index()
 	{
 		$order_id = $this->input->get('order_id');
+		$transaction_id = $this->input->get('id');
 		$status_code = $this->input->get('status_code');
 		$transaction_status = $this->input->get('transaction_status');
 
 		try {
-			
-			$transaction = \Midtrans\Transaction::status($this->input->get('order_id'));
 
-			switch ($transaction->payment_type) {
-				case 'cstore':
-					switch ($transaction->transaction_status) {
-						case 'pending':
-						break;
-						
-						default:
-						break;
-					}
-				break;
+			$tx_uid = (!empty($order_id))?$order_id:$transaction_id;
+			$transaction = \Midtrans\Transaction::status($tx_uid);
+			$order_id = $transaction->order_id;
 
-				case 'credit_card':
-					if ($transaction->fraud_status == 'accept') {
-						$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $order_id));
-					}
-				break;
-				
-				default:
-				break;
+			if (!empty($tx_uid))
+			{
+				if ($transaction->status_code == 200) {
+					$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $order_id));
+				}
+			}
+			else
+			{
+				redirect(base_url('site/tagihan'), 'refresh');
 			}
 
 			$data['transaction'] = $transaction;
-			$data['page_title'] = 'Pembayaran Selesai';
-			$this->template->site('payment_finish', $data);
+			$data['page_title'] = 'Pembayaran';
+			$this->template->site('payment', $data);
 		} catch (Exception $e) {
 			switch ($e->getCode())
 			{
@@ -63,6 +56,7 @@ class Payment extends CI_Controller
 				break;
 				
 				default:
+					show_error('Unknow error', 500);
 				break;
 			}
 		}
