@@ -154,7 +154,7 @@ class Chat extends CI_Controller
 	public function update_chat_room($room_id = NULL)
 	{
 		$this->chat_room_model->update($this->input->post(), array('id' => $room_id));
-		$this->output->set_content_type('application/json')->set_output(json_encode(array('status' => 'success')));
+		$this->output->set_content_type('application/json')->set_output(json_encode(array('status' => 'success', 'data' => $this->chat_room_model->view($room_id))));
 	}
 
 	/**

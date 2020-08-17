@@ -166,18 +166,20 @@ function arrayobject_find_value(arrayName, searchKey, searchValue) {
 }
 
 function update_chat_room(room_id, data) {
-	$.ajax({
-		url: '<?php echo base_url('chat/update_chat_room/') ?>'+room_id,
-		type: 'POST',
-		dataType: 'JSON',
-		data: data,
-		success: function(data) {
-			console.log(data)
-		},
-		error: function(error) {
-			console.log(error)
-		}
-	});
+	return new Promise((resolve, reject) => {
+		$.ajax({
+			url: '<?php echo base_url('chat/update_chat_room/') ?>'+room_id,
+			type: 'POST',
+			dataType: 'JSON',
+			data: data,
+			success: function(data) {
+				resolve(data)
+			},
+			error: function(error) {
+				console.log(error)
+			}
+		});
+	})
 }
 
 function user_info(user_id) {
@@ -430,21 +432,29 @@ $(document).ready(function() {
 		window.location.reload();
 	});
 
-	$(document).on('click', '.new_chat_room', function(event) {
+	$(document).on('click', '.new_chat_room',async function(event) {
 		event.preventDefault();
 		var room_id = $(this).attr('data_id');
 		if (joined_chat_rooms.indexOf(room_id) === -1) {
 			socket.emit('join_chat_room', room_id); // admin join to room
 			socket.emit('admin_joined_room', room_id); // admin joined room
 			joined_chat_rooms.push(room_id); // push to joined chat room local storage
+
 			$('li.new_chat_room[data_id="'+room_id+'"]').remove(); // remove from notification
 			admin_notifications.splice(arrayobject_find_value(admin_notifications, 'chat_room', room_id), 1); // remove from notification
+			$('.notifications_count').text(parseInt($('.notifications_count').text())-1);
+			$('.notifications_count_text').text($('.notifications_count').text());
+
 			update_chat_room(room_id, {
 				admin: <?php echo aktif_sesi()['id'] ?>,
 				status: 'berlangsung'
-			});
-
-			chat_room_info(room_id);
+			}).then(response => {
+				if (response.status == 'success') {
+					chat_room_info(response.data.id);
+				}
+			}, error => {
+				console.log(error)
+			})
 		}
 
 		localStorage.setItem('admin_notification', JSON.stringify(admin_notifications));
