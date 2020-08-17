@@ -211,7 +211,9 @@ function chat_room_messages(room_id, limit = 10, offset = 0, desc = false) {
 							console.log(error)
 						})
 					} else {
-						resolve('Unknow');
+						resolve({
+							nama_lengkap: data.data.chat_room.customer_name
+						});
 					}
 				});
 
@@ -233,6 +235,8 @@ function chat_room_messages(room_id, limit = 10, offset = 0, desc = false) {
 					customer: await customer_info,
 					admin: await admin_info
 				}
+
+				console.log(user)
 
 				$.each(data.data.messages, function(index, el) {
 					if (el.by == 'customer') {
@@ -275,7 +279,7 @@ function chat_room_messages(room_id, limit = 10, offset = 0, desc = false) {
 $(document).ready(function() {
 	var socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>'); // socket.io init
 	var admin_notifications = (localStorage.getItem('admin_notification') == null)?[]:JSON.parse(localStorage.getItem('admin_notification')); // saved notification in local storage
-	var joined_chat_rooms = (localStorage.getItem('joined_chat_room') == null)?[]:JSON.parse(localStorage.getItem('joined_chat_room')); // saved joined room in local storage
+	var joined_chat_rooms = (localStorage.getItem('joined_chat_rooms') == null)?[]:JSON.parse(localStorage.getItem('joined_chat_rooms')); // saved joined room in local storage
 
 	$('.notifications_count').text(admin_notifications.length)
 	$('.notifications_count_text').text(admin_notifications.length)
@@ -419,6 +423,13 @@ $(document).ready(function() {
 		}
 	});
 
+	socket.on('close_chat_room', data => {
+		var joined_chat_rooms = JSON.parse(localStorage.getItem('joined_chat_rooms'));
+		joined_chat_rooms.splice(joined_chat_rooms.indexOf(data), 1); // remove from joined
+		localStorage.setItem('joined_chat_rooms', JSON.stringify(joined_chat_rooms));
+		window.location.reload();
+	});
+
 	$(document).on('click', '.new_chat_room', function(event) {
 		event.preventDefault();
 		var room_id = $(this).attr('data_id');
@@ -437,7 +448,7 @@ $(document).ready(function() {
 		}
 
 		localStorage.setItem('admin_notification', JSON.stringify(admin_notifications));
-		localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));
+		localStorage.setItem('joined_chat_rooms', JSON.stringify(joined_chat_rooms));
 
 		var router_metod = '<?php echo $this->router->fetch_method(); ?>'
 		if (router_metod !== 'chat') {
@@ -453,7 +464,7 @@ $(document).ready(function() {
 		});
 		socket.emit('close_chat_room', room_id);
 		joined_chat_rooms.splice(joined_chat_rooms.indexOf(room_id), 1);
-		localStorage.setItem('joined_chat_room', JSON.stringify(joined_chat_rooms));
+		localStorage.setItem('joined_chat_rooms', JSON.stringify(joined_chat_rooms));
 		$(this).parent().parent().parent().remove();
 		window.location.reload();
 	});

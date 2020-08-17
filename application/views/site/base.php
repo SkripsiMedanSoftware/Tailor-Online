@@ -254,20 +254,16 @@
 		</div>
 		</body>
 		<script type="text/javascript">
-			const user_session = <?php echo (!empty(aktif_sesi()))?json_encode(array(
+			var user_session = <?php echo (!empty(aktif_sesi()))?json_encode(array(
 				'id' => aktif_sesi()['id'],
 				'email' => aktif_sesi()['email'],
 				'nama_lengkap' => aktif_sesi()['nama_lengkap']
 			)):'{}'; ?>;
 
-			const guest = JSON.parse(localStorage.getItem('guest'));
-			const chat_room = JSON.parse(localStorage.getItem('chat_room'));
+			var guest = JSON.parse(localStorage.getItem('guest'));
+			var chat_room = JSON.parse(localStorage.getItem('chat_room'));
 
 			const socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>');
-
-			socket.on('close_chat_room', data => {
-				console.log('close')
-			});
 
 			const $chatbox = $('.chatbox'),
 						$chatboxTitle = $('.chatbox__title'),
@@ -305,6 +301,10 @@
 					success: function(data) {
 						console.log(data)
 						if (data.status == 'success') {
+							localStorage.setItem('guest', JSON.stringify({
+								full_name: $('#chatLoginFullName').val(),
+								email: $('#chatLoginEmail').val()
+							}))
 							join_chat_room({
 								id: data.data.id,
 								status: data.data.status
@@ -333,6 +333,7 @@
 						});
 						socket.emit('close_chat_room', chat_room.id);
 						localStorage.removeItem('chat_room');
+						localStorage.removeItem('guest');
 					});
 
 					$chatbox.on('transitionend', function() {
@@ -388,7 +389,7 @@
 								localStorage.removeItem('chat_room');
 							} else {
 								$chatbox.removeClass('chatbox--tray chatbox--empty');
-								join_chat_room(chat_room);
+								join_chat_room(chat_room.data);
 							}
 						}
 					},
@@ -455,8 +456,8 @@
 
 				$chatboxTitle.on('click', function() {
 
-					var guest = JSON.parse(localStorage.getItem('guest'));
-					var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+					guest = JSON.parse(localStorage.getItem('guest'));
+					chat_room = JSON.parse(localStorage.getItem('chat_room'));
 
 					if ($chatbox.hasClass('chatbox--tray') === false) {
 
