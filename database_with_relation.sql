@@ -171,7 +171,7 @@ CREATE TABLE `pesanan` (
   `harga` double DEFAULT NULL,
   `status` enum('dibatalkan','menunggu-konfirmasi','diterima','ditolak','dalam-proses','selesai') NOT NULL,
   `status_pembayaran` varchar(14) DEFAULT NULL,
-  `metode_pembayaran` enum('midtrans','cod') NOT NULL
+  `metode_pembayaran` enum('midtrans','cod') NOT NULL,
   `snap_response` tinytext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
