@@ -240,12 +240,12 @@
 			<div class="chatbox__body"></div>
 			<form class="chatbox__credentials">
 				<div class="form-group">
-					<label for="inputName">Name:</label>
-					<input type="text" class="form-control" id="inputName">
+					<label for="chatLoginFullName">Name:</label>
+					<input type="text" class="form-control" id="chatLoginFullName">
 				</div>
 				<div class="form-group">
-					<label for="inputEmail">Email:</label>
-					<input type="email" class="form-control" id="inputEmail">
+					<label for="chatLoginEmail">Email:</label>
+					<input type="email" class="form-control" id="chatLoginEmail">
 				</div>
 				<button type="submit" class="btn btn-success btn-block">Enter Chat</button>
 			</form>
@@ -260,11 +260,14 @@
 				'nama_lengkap' => aktif_sesi()['nama_lengkap']
 			)):'{}'; ?>;
 
+			const guest = JSON.parse(localStorage.getItem('guest'));
+			const chat_room = JSON.parse(localStorage.getItem('chat_room'));
+
 			const socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>');
 
-				socket.on('close_chat_room', data => {
-					console.log('close')
-				});
+			socket.on('close_chat_room', data => {
+				console.log('close')
+			});
 
 			const $chatbox = $('.chatbox'),
 						$chatboxTitle = $('.chatbox__title'),
@@ -287,6 +290,32 @@
 					}
 				});
 			}
+
+			$chatboxCredentials.on('submit', function(e) {
+				e.preventDefault();
+				$chatbox.removeClass('chatbox--empty');
+				$.ajax({
+					url: '<?php echo base_url('chat/create_room') ?>',
+					type: 'POST',
+					dataType: 'JSON',
+					data: {
+						full_name: $('#chatLoginFullName').val(),
+						email: $('#chatLoginEmail').val()
+					},
+					success: function(data) {
+						console.log(data)
+						if (data.status == 'success') {
+							join_chat_room({
+								id: data.data.id,
+								status: data.data.status
+							});
+						}
+					},
+					error: function(error) {
+						console.log(error)
+					}
+				});
+			});
 
 			(function($) {
 				$(document).ready(function() {
