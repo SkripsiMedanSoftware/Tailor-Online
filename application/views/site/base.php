@@ -66,7 +66,7 @@
 			<div class="wrap">
 				<div class="header">
 					<div class="logo">
-						<a href="<?php echo base_url('site') ?>"><img src="<?php echo base_url('assets/aditii-w3layout/') ?>images/logo.png" alt=""/> </a>
+						<a href="<?php echo base_url('site') ?>"><h2><?php echo APP_INFO['name']; ?></h2></a>
 					</div>
 					<div class="h_icon">
 						<ul class="icon1 sub-icon1">
@@ -265,7 +265,8 @@
 				</div>
 				<button type="submit" class="btn btn-success btn-block">Enter Chat</button>
 			</form>
-			<textarea class="chatbox__message" placeholder="Write something interesting"></textarea>
+			<!-- <textarea class="chatbox__message" placeholder="Write something interesting"></textarea> -->
+			<input type="text" class="chatbox__message" placeholder="Tuliskan sesuatu">
 		</div>
 		</body>
 		<script type="text/javascript">
@@ -288,6 +289,21 @@
 						$chatboxBody = $('.chatbox__body'),
 						$chatboxMessage = $('.chatbox__message');
 
+			function update_chat_room(room_id, data) {
+				$.ajax({
+					url: '<?php echo base_url('chat/update_chat_room/') ?>'+room_id,
+					type: 'POST',
+					dataType: 'JSON',
+					data: data,
+					success: function(data) {
+						console.log(data)
+					},
+					error: function(error) {
+						console.log(error)
+					}
+				});
+			}
+
 			(function($) {
 				$(document).ready(function() {
 					$chatboxTitle.on('click', function() {
@@ -297,6 +313,12 @@
 					$chatboxTitleClose.on('click', function(e) {
 						e.stopPropagation();
 						$chatbox.addClass('chatbox--closed');
+
+						var chat_room = JSON.parse(localStorage.getItem('chat_room'));
+						update_chat_room(chat_room.id, {
+							status: 'selesai'
+						});
+						socket.emit('close_chat_room', chat_room.id);
 						localStorage.removeItem('chat_room');
 					});
 
@@ -341,6 +363,28 @@
 				});
 			}
 
+			function chat_room_info(room_id) {
+				$.ajax({
+					url: '<?php echo base_url('chat/room_info/') ?>'+room_id,
+					type: 'GET',
+					dataType: 'JSON',
+					success: function(chat_room) {
+						if (chat_room.status == 'success') {
+							if (chat_room.data.status == 'selesai') {
+								$chatbox.addclass('chatbox--tray chatbox--empty');
+								localStorage.removeItem('chat_room');
+							} else {
+								$chatbox.removeClass('chatbox--tray chatbox--empty');
+								join_chat_room(chat_room);
+							}
+						}
+					},
+					error: function(error) {
+						console.log(error)
+					}
+				});
+			}
+
 			function join_chat_room(chat_room) {
 				localStorage.setItem('chat_room', JSON.stringify(chat_room));
 				$chatbox.removeClass('chatbox--empty');
@@ -352,11 +396,9 @@
 
 				var chat_room = JSON.parse(localStorage.getItem('chat_room'));
 				if (chat_room !== null && Object.keys(user_session).length > 0) {
-					$chatbox.removeClass('chatbox--tray chatbox--empty');
-					join_chat_room(chat_room);
+					chat_room_info(chat_room.id);
 				} else if (chat_room !== null && guest !== null) {
-					$chatbox.removeClass('chatbox--tray chatbox--empty');
-					join_chat_room(chat_room);
+					chat_room_info(chat_room.id);
 				}
 
 				if (chat_room !== null) {
@@ -370,29 +412,31 @@
 						var chat_room = JSON.parse(localStorage.getItem('chat_room'));
 						var message = $chatboxMessage.val();
 
-						$.ajax({
-							url: '<?php echo base_url('chat/send_message/') ?>'+chat_room.id,
-							type: 'POST',
-							dataType: 'JSON',
-							data: {
-								from: 'customer',
-								message: message
-							},
-							success: function(data) {
-								if (data.status == 'success') {
-									socket.emit('message_chat_room', {
-										chat_room: chat_room,
-										from: 'customer',
-										message: message
-									});
+						if (message !== '') {
+							$.ajax({
+								url: '<?php echo base_url('chat/send_message/') ?>'+chat_room.id,
+								type: 'POST',
+								dataType: 'JSON',
+								data: {
+									from: 'customer',
+									message: message
+								},
+								success: function(data) {
+									if (data.status == 'success') {
+										socket.emit('message_chat_room', {
+											chat_room: chat_room,
+											from: 'customer',
+											message: message
+										});
+									}
+								},
+								error: function(error) {
+									console.log(error)
 								}
-							},
-							error: function(error) {
-								console.log(error)
-							}
-						});
+							});
 
-						$chatboxMessage.val('');
+							$chatboxMessage.val('');
+						}
 					}
 				});
 

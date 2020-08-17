@@ -41,7 +41,7 @@
 			</tbody>
 		</table>
 	</div>
-	<div class="col-lg-6">
+	<div class="col-lg-6 div_payment_info">
 		<table class="table table-hover table-bordered">
 			<tbody id="payment_info"></tbody>
 		</table>
@@ -57,6 +57,7 @@ $(document).ready(function(){
 		success: function(data){
 			if (data.status == 'success') {
 				 if (data.data.payment_type == 'credit_card') {
+				 	console.log(data)
 					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>Kartu Kredit</td></tr>');
 					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
 					if (data.data.fraud_status == 'accept') {
@@ -67,24 +68,19 @@ $(document).ready(function(){
 					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
 					$('#payment_info').append('<tr><td>Kode Pembayaran</td><td>'+data.data.payment_code+'</td></tr>');
 					$('#payment_info').append('<tr><td>Status Pembayaran</td><td>'+data.data.transaction_status+'</td></tr>');
-				} else if (data.data.payment_type == 'x') {
-					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>'+data.data.store+'</td></tr>');
+				} else if (data.data.payment_type == 'bank_transfer') {
+					$('#payment_info').append('<tr><td>Metode Pembayaran</td><td>Bank Transfer</td></tr>');
 					$('#payment_info').append('<tr><td>Jumlah Pembayaran</td><td>Rp.'+data.data.gross_amount+'</td></tr>');
-					$('#payment_info').append('<tr><td>Kode Pembayaran</td><td>'+data.data.payment_code+'</td></tr>');
 					$('#payment_info').append('<tr><td>Status Pembayaran</td><td>'+data.data.transaction_status+'</td></tr>');
 				} else {
 					console.log(data)
 				}
-
-				console.log(data)
-			} else {
-
 			}
 		},
 		error: function(error){
 			console.log(error)
 		}
 	});
-	
 });
+
 </script>

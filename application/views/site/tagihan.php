@@ -17,6 +17,7 @@
 				<?php 
 					$i = 1;
 					foreach ($pesanan as $value) : 
+						$snap_response = json_decode($value['snap_response']);
 				?>
 				<tr>
 					<td><?php echo $i ?></td>
@@ -55,35 +56,45 @@
 						}
 						?>
 					</td>
-					<td>
+					<td status_pembayaran="<?php echo $value['uid']; ?>">
 						<?php 
-						switch ($value['status_pembayaran']) {
-							case 'belum-dibayar':
-								?><button class="btn btn-xs btn-warning">Belum Dibayar</button><?php
-							break;
+						if ($value['status'] == 'dibatalkan') {
+							echo '-';
+						} else {
+							switch ($value['status_pembayaran']) {
+								case 'belum-dibayar':
+									?><button class="btn btn-xs btn-warning">Belum Dibayar</button><?php
+								break;
 
-							case 'pending':
-								?><button class="btn btn-xs btn-warning">Menunggu Pembayaran</button><?php
-							break;
+								case 'pending':
+									?><button class="btn btn-xs btn-warning">Menunggu Pembayaran</button><?php
+								break;
 
-							default:
-								?><button class="btn btn-xs btn-success">Selesai</button><?php
-							break;
+								default:
+									?><button class="btn btn-xs btn-success">Selesai</button><?php
+								break;
+							}
 						}
 						?>
 					</td>
 					<td>
-						<a href="<?php echo base_url('site/tagihan/'.$value['id']) ?>" class="btn btn-xs btn-info">Detail</a>
-						<?php if ($value['status'] == 'diterima'  && $value['status_pembayaran'] == 'belum-dibayar') : ?>
-							<a href="<?php echo base_url('site/tagihan/'.$value['id'].'/batalkan') ?>" class="btn btn-xs btn-danger">Batalkan</a>
-							<?php if ($value['metode_pembayaran'] == 'midtrans') :?>
-								<button class="btn pay btn-xs btn-success" data_id="<?php echo $value['id'] ?>">Bayar</button>
+						<?php if ($value['status'] !== 'dibatalkan') :?>
+							<a href="<?php echo base_url('site/tagihan/'.$value['id']) ?>" class="btn btn-xs btn-info">Detail</a>
+							<?php if (isset($snap_response->pdf_url)): ?>
+								<a href="<?php echo $snap_response->pdf_url; ?>" class="btn btn-xs btn-primary">Instruksi</a>
 							<?php endif; ?>
-							<?php else: ?>
-								<?php if (!in_array($value['status'], ['dalam-proses', 'selesai']) and $value['status'] !== 'dibatalkan') : ?>
-									<a href="<?php echo base_url('site/tagihan/'.$value['id'].'/batalkan') ?>" class="btn btn-xs btn-danger">Batalkan</a>
+							<a class="btn btn-xs btn-info cek_pembayaran" uid="<?php echo $value['uid']; ?>">Cek Pembayaran</a>
+							<?php if ($value['status'] == 'diterima'  && $value['status_pembayaran'] == 'belum-dibayar') : ?>
+								<a href="<?php echo base_url('site/tagihan/'.$value['id'].'/batalkan') ?>" class="btn btn-xs btn-danger">Batalkan</a>
+								<?php if ($value['metode_pembayaran'] == 'midtrans') :?>
+									<button class="btn pay btn-xs btn-success" data_id="<?php echo $value['id'] ?>">Bayar</button>
 								<?php endif; ?>
-						<?php endif ?>
+								<?php else: ?>
+									<?php if (!in_array($value['status'], ['dalam-proses', 'selesai']) and $value['status'] !== 'dibatalkan') : ?>
+										<a href="<?php echo base_url('site/tagihan/'.$value['id'].'/batalkan') ?>" class="btn btn-xs btn-danger">Batalkan</a>
+									<?php endif; ?>
+							<?php endif ?>
+						<?php endif; ?>
 					</td>
 				</tr>
 				<?php $i++; ?>
@@ -94,11 +105,10 @@
 </div>
 
 <script type="text/javascript">
-
-function update_status_pesanan(data) {
+function update_status_pesanan(order_id, data) {
 	$.ajax({
-		url: '<?php echo base_url('payment/update_pesanan') ?>',
-		type: 'GET',
+		url: '<?php echo base_url('payment/update_pesanan/') ?>'+order_id,
+		type: 'POST',
 		dataType: 'JSON',
 		data: data,
 		success: function(data) {
@@ -109,6 +119,23 @@ function update_status_pesanan(data) {
 		}
 	});
 }
+
+$(document).on('click', '.cek_pembayaran', function(event) {
+	event.preventDefault();
+	var uid = $(this).attr('uid');
+	$.ajax({
+		url: '<?php echo base_url('payment/cek_status/'); ?>'+uid,
+		type: 'GET',
+		dataType: 'JSON',
+		success: function(data) {
+			window.location.reload();
+		},
+		error: function(error) {
+
+		}
+	});
+});
+
 $(document).on('click', '.pay', function(event) {
 	event.preventDefault();
 	var data_id = $(this).attr('data_id');
@@ -124,12 +151,17 @@ $(document).on('click', '.pay', function(event) {
 						console.log(result);
 					},
 					onPending: function(result) {
-						console.log('pending');
 						update_status_pesanan(result.order_id, {
 							status_pembayaran: 'pending',
 							snap_response: JSON.stringify(result)
 						});
-						console.log(result);
+
+						$('.div_payment_info').html(
+							'<h3>'+result.status_message+'</h3>'+
+							'<p>Jumlah yang harus dibayarkan : '+result.gross_amount+'</p>'+
+							'<p><a href="'+result.pdf_url+'">Download instruksi pembayaran</a></p>'+
+							'<p><a href="<?php echo base_url('site/tagihan') ?>">Kembali ke halaman tagihan</a></p>'
+						);
 					},
 					onError: function(result) {
 						console.log('error');

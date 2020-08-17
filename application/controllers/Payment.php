@@ -134,14 +134,37 @@ class Payment extends CI_Controller
 	/**
 	 * Cek status
 	 * 
-	 * @param  string $transation_id
+	 * @param  string $pesanan_uid
 	 */
-	public function cek_status($transation_id = NULL)
+	public function cek_status($pesanan_uid = NULL)
 	{
 		try {
+
+			$response = \Midtrans\Transaction::status($pesanan_uid);
+
+			switch ($response->payment_type) {
+				case 'cstore':
+				break;
+
+				case 'bank_transfer':
+					if ($response->transaction_status == 'settlement') {
+						$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $pesanan_uid));
+					}
+				break;
+
+				case 'credit_card':
+					if ($response->fraud_status == 'accept') {
+						$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $pesanan_uid));
+					}
+				break;
+				
+				default:
+				break;
+			}
+
 			$this->output->set_content_type('application/json')->set_output(json_encode(array(
 				'status' => 'success',
-				'data' => \Midtrans\Transaction::status($transation_id)
+				'data' => $response
 			)));
 		} catch (Exception $e) {
 			switch ($e->getCode())
