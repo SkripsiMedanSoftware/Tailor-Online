@@ -265,7 +265,7 @@
 
 			const socket = io('<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>');
 
-			const $chatbox = $('.chatbox'),
+			var $chatbox = $('.chatbox'),
 						$chatboxTitle = $('.chatbox__title'),
 						$chatboxTitleClose = $('.chatbox__title__close'),
 						$chatboxCredentials = $('.chatbox__credentials'),
@@ -328,12 +328,15 @@
 						$chatbox.addClass('chatbox--closed');
 
 						var chat_room = JSON.parse(localStorage.getItem('chat_room'));
-						update_chat_room(chat_room.id, {
-							status: 'selesai'
-						});
-						socket.emit('close_chat_room', chat_room.id);
-						localStorage.removeItem('chat_room');
-						localStorage.removeItem('guest');
+
+						if (chat_room !== null) {
+							update_chat_room(chat_room.id, {
+								status: 'selesai'
+							});
+							socket.emit('close_chat_room', chat_room.id);
+							localStorage.removeItem('chat_room');
+							localStorage.removeItem('guest');
+						}
 					});
 
 					$chatbox.on('transitionend', function() {
@@ -388,8 +391,17 @@
 								$chatbox.addclass('chatbox--tray chatbox--empty');
 								localStorage.removeItem('chat_room');
 							} else {
-								$chatbox.removeClass('chatbox--tray chatbox--empty');
-								join_chat_room(chat_room.data);
+								if (Object.keys(user_session).length > 0) {
+									var room = JSON.parse(localStorage.getItem('chat_room'));
+									if (room.customer == null) {
+										localStorage.removeItem('chat_room');
+										window.location.reload();
+									}
+								}
+								else {
+									$chatbox.removeClass('chatbox--tray chatbox--empty');
+									join_chat_room(chat_room.data);
+								}
 							}
 						}
 					},
@@ -466,56 +478,62 @@
 					guest = JSON.parse(localStorage.getItem('guest'));
 					chat_room = JSON.parse(localStorage.getItem('chat_room'));
 
-					if ($chatbox.hasClass('chatbox--tray') === false) {
+					if (chat_room == null) {
+						$('.chatbox').addClass('chatbox--empty');
+					}
+					else
+					{
+						if ($chatbox.hasClass('chatbox--tray') === false) {
 
-						if (chat_room !== null) {
-							$chatbox.removeClass('chatbox--empty');
-							$chatboxMessage.focus();
-							
-							var direct_chat_message = $('.chatbox__body');
-							direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
-							socket.emit('join_chat_room', chat_room.id);
-						}
+							if (chat_room !== null) {
+								$chatbox.removeClass('chatbox--empty');
+								$chatboxMessage.focus();
+								
+								var direct_chat_message = $('.chatbox__body');
+								direct_chat_message[0].scrollTop = direct_chat_message[0].scrollHeight;
+								socket.emit('join_chat_room', chat_room.id);
+							}
 
-						if (chat_room === null) {
-							if (Object.keys(user_session).length > 0) {
-								$.ajax({
-									url: '<?php echo base_url('chat/create_room') ?>',
-									type: 'POST',
-									dataType: 'JSON',
-									success: function(data) {
-										if (data.status == 'success') {
-											join_chat_room({
-												id: data.data.id,
-												status: data.data.status
-											});
+							if (chat_room === null) {
+								if (Object.keys(user_session).length > 0) {
+									$.ajax({
+										url: '<?php echo base_url('chat/create_room') ?>',
+										type: 'POST',
+										dataType: 'JSON',
+										success: function(data) {
+											if (data.status == 'success') {
+												join_chat_room({
+													id: data.data.id,
+													status: data.data.status
+												});
+											}
+										},
+										error: function(error) {
+											console.log(error)
 										}
-									},
-									error: function(error) {
-										console.log(error)
-									}
-								});
-							} else if (guest !== null) {
-								$.ajax({
-									url: '<?php echo base_url('chat/create_room') ?>',
-									type: 'POST',
-									dataType: 'JSON',
-									data: {
-										full_name: guest.full_name,
-										email: guest.email
-									},
-									success: function(data) {
-										if (data.status == 'success') {
-											join_chat_room({
-												id: data.data.id,
-												status: data.data.status
-											})
+									});
+								} else if (guest !== null) {
+									$.ajax({
+										url: '<?php echo base_url('chat/create_room') ?>',
+										type: 'POST',
+										dataType: 'JSON',
+										data: {
+											full_name: guest.full_name,
+											email: guest.email
+										},
+										success: function(data) {
+											if (data.status == 'success') {
+												join_chat_room({
+													id: data.data.id,
+													status: data.data.status
+												})
+											}
+										},
+										error: function(error) {
+											console.log(error)
 										}
-									},
-									error: function(error) {
-										console.log(error)
-									}
-								});
+									});
+								}
 							}
 						}
 					}
