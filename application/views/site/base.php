@@ -442,6 +442,13 @@
 											from: 'customer',
 											message: message
 										});
+
+										$chatboxBody.append(
+											'<div class="chatbox__body__message chatbox__body__message--right">'+
+												'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Picture">'+
+												'<p>'+data.data.message+'</p>'+
+											'</div>'
+										);
 									}
 								},
 								error: function(error) {
@@ -515,15 +522,7 @@
 				});
 
 				socket.on('message_chat_room', data => {
-					console.log(data)
-					if (data.from == 'customer') {
-						$chatboxBody.append(
-							'<div class="chatbox__body__message chatbox__body__message--right">'+
-								'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user8-128x128.jpg" alt="Picture">'+
-								'<p>'+data.message+'</p>'+
-							'</div>'
-						);
-					} else {
+					if (data.from == 'admin') {
 						$chatboxBody.append(
 							'<div class="chatbox__body__message chatbox__body__message--left">'+
 								'<img src="<?php echo base_url('assets/adminlte-2.4.8/dist/img/') ?>/user1-128x128.jpg" alt="Picture">'+

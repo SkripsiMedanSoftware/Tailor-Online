@@ -238,8 +238,6 @@ function chat_room_messages(room_id, limit = 10, offset = 0, desc = false) {
 					admin: await admin_info
 				}
 
-				console.log(user)
-
 				$.each(data.data.messages, function(index, el) {
 					if (el.by == 'customer') {
 						$('.direct-chat-messages[room_id="'+el.chat_room+'"]').append(
