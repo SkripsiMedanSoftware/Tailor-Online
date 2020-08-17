@@ -61,3 +61,5 @@ io.on('connect', socket => {
 
 io.listen(server.listen(process.env.PORT)); // Socket.io listening on HTTP / Default port
 // io.listen(server.listen(8081)); // Socket.io listening on HTTP / Default port
+
+console.log("Websocket server running on port %d", server.address().port)
