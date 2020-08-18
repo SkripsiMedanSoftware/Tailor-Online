@@ -20,6 +20,7 @@ class Site extends CI_Controller
 	public function index()
 	{
 		$data['page_title'] = 'Home';
+		$data['katalog'] = $this->katalog_produk_model->get_where(array('status' => 'publish'));
 		$this->template->site('home', $data);
 	}
 
