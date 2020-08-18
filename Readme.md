@@ -25,7 +25,7 @@ password : customer
 
 # Midtrans Testing
 
-[Credit Card](https://docs.midtrans.com/en/reference/test.html)
+[Credit Card - Direct Debit - Bank Transfer - E-Wallet - Convenience Store | Simulator](https://docs.midtrans.com/en/reference/test.html)
 
 
 [Midtrans API](https://api-docs.midtrans.com)
