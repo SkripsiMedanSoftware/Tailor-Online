@@ -71,12 +71,16 @@
 					<td>
 						<?php 
 						switch ($value['status_pembayaran']) {
-							case 'belum-lunas':
+							case 'belum-dibayar':
 								?><button class="btn btn-xs btn-danger">Belum Dibayar</button><?php
 							break;
 
 							case 'pending':
-								?><button class="btn btn-xs btn-warning">Pending</button><?php
+								?><button class="btn btn-xs btn-warning">Menunggu Pembayaran</button><?php
+							break;
+
+							case 'lunas':
+								?><button class="btn btn-xs btn-success">Lunas</button><?php
 							break;
 
 							default:

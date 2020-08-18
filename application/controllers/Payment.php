@@ -136,24 +136,10 @@ class Payment extends CI_Controller
 
 			$response = \Midtrans\Transaction::status($pesanan_uid);
 
-			switch ($response->payment_type) {
-				case 'cstore':
-				break;
-
-				case 'bank_transfer':
-					if ($response->transaction_status == 'settlement') {
-						$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $pesanan_uid));
-					}
-				break;
-
-				case 'credit_card':
-					if ($response->fraud_status == 'accept') {
-						$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $pesanan_uid));
-					}
-				break;
-				
-				default:
-				break;
+			if ($response->status_code == 200) {
+				$this->pesanan_model->update(array('status_pembayaran' => 'lunas'), array('uid' => $pesanan_uid));
+			} else {
+				$this->pesanan_model->update(array('status_pembayaran' => $response->transaction_status), array('uid' => $pesanan_uid));
 			}
 
 			$this->output->set_content_type('application/json')->set_output(json_encode(array(

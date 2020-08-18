@@ -39,8 +39,29 @@ class Admin extends CI_Controller
 				{
 					if ($this->input->method(TRUE) === 'POST')
 					{
-						$this->pesanan_model->update(array(
-						), array('id' => $id['id']));
+						$this->form_validation->set_rules('estimasi_pengerjaan', 'Estimasi Pengerjaan', 'trim|integer|required');
+						$this->form_validation->set_rules('status', 'Status Pesanan', 'trim|in_list[dibatalkan,menunggu-konfirmasi,diterima,ditolak,dalam-proses,selesai]|required');
+						$this->form_validation->set_rules('harga', 'Harga', 'trim|integer|required');
+						$this->form_validation->set_rules('status_pembayaran', 'Status Pembayaran', 'trim|in_list[belum-dibayar,pending,lunas]|required');
+
+						if ($this->form_validation->run() == TRUE)
+						{
+							$this->pesanan_model->update(array(
+								'estimasi_pengerjaan' => $this->input->post('estimasi_pengerjaan'),
+								'harga' => $this->input->post('harga'),
+								'status' => $this->input->post('status'),
+								'status_pembayaran' => $this->input->post('status_pembayaran')
+							), array('id' => $id['id']));
+
+							$this->session->set_flashdata('flash_message', array('status' => 'success', 'message' => 'Data pesanan berhasil diperbaharui'));
+							redirect(base_url('admin/pesanan') ,'refresh');
+						}
+						else
+						{
+							$data['pesanan'] = $id;
+							$data['page_title'] = 'Sunting Data Pesanan';
+							$this->template->admin('pesanan/update', $data);
+						}
 					}
 					else
 					{
@@ -52,6 +73,21 @@ class Admin extends CI_Controller
 				else
 				{
 					show_404();
+				}
+			break;
+
+			case 'delete':
+				$id = $this->pesanan_model->view($id);
+				if (!empty($id))
+				{
+					$this->pesanan_model->delete(array('id' => $id['id']));
+					$this->session->set_flashdata('flash_message', array('status' => 'success', 'message' => 'Data pesanan berhasil dihapus'));
+					redirect(base_url('admin/pesanan') ,'refresh');
+				}
+				else
+				{
+					$this->session->set_flashdata('flash_message', array('status' => 'danger', 'message' => 'Data pesanan tidak ditemukan'));
+					redirect(base_url('admin/pesanan') ,'refresh');
 				}
 			break;
 			
