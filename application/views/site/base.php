@@ -392,11 +392,11 @@
 								localStorage.removeItem('chat_room');
 							} else {
 								if (Object.keys(user_session).length > 0) {
-									var room = JSON.parse(localStorage.getItem('chat_room'));
-									if (room.customer == null) {
-										localStorage.removeItem('chat_room');
-										window.location.reload();
-									}
+									// var room = JSON.parse(localStorage.getItem('chat_room'));
+									// if (room.customer == null) {
+									// 	localStorage.removeItem('chat_room');
+									// 	window.location.reload();
+									// }
 								}
 								else {
 									$chatbox.removeClass('chatbox--tray chatbox--empty');

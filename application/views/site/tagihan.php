@@ -130,8 +130,7 @@ $(document).on('click', '.cek_pembayaran', function(event) {
 		type: 'GET',
 		dataType: 'JSON',
 		success: function(data) {
-			console.log(data)
-			// window.location.reload();
+			window.location.reload();
 		},
 		error: function(error) {
 

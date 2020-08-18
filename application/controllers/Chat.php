@@ -99,6 +99,9 @@ class Chat extends CI_Controller
 				$customer = $this->pengguna_model->view($chat_room['customer']);
 				$chat_room['customer_name'] = $customer['nama_lengkap'];
 				$chat_room['customer_email'] = $customer['email'];
+				$chat_room['id'] = $chat_room['id'];
+				$chat_room['customer'] = $chat_room['customer'];
+				$chat_room['status'] = $chat_room['status'];
 			}
 
 			$this->output->set_content_type('application/json')->set_output(json_encode(array(
