@@ -30,3 +30,13 @@ password : customer
 
 [Midtrans API](https://api-docs.midtrans.com)
 [Midtrans Snap API](https://snap-docs.midtrans.com)
+
+
+## Websocket [Heroku Server](https://tailor-chat.herokuapp.com)
+
+
+```bash
+git remote add heroku https://git.heroku.com/tailor-chat.git
+```
+
+Email yang digunakan untuk midtrans dan heroku : Putri.dewiii.0920@gmail.com
