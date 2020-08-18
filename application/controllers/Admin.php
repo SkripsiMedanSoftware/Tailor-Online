@@ -78,6 +78,7 @@ class Admin extends CI_Controller
 
 			case 'delete':
 				$id = $this->pesanan_model->view($id);
+
 				if (!empty($id))
 				{
 					$this->pesanan_model->delete(array('id' => $id['id']));
@@ -142,18 +143,128 @@ class Admin extends CI_Controller
 	 */
 	public function web_slider($option = NULL, $id = NULL)
 	{
+		$config['upload_path'] = './uploads/web_slider/';
+		$config['allowed_types'] = 'gif|jpg|jpeg|png';
+		$config['encrypt_name'] = TRUE;
+		$this->load->library('upload', $config);
+
 		switch ($option)
 		{
 			case 'add':
+				if ($this->input->method(TRUE) == 'POST')
+				{
+					$this->form_validation->set_rules('judul', 'Judul', 'trim|required');
+
+					if ($this->form_validation->run() == TRUE)
+					{
+						$image = NULL;
+
+						if (!empty($_FILES['image']['name'])) 
+						{
+							if ($this->upload->do_upload('image')) {
+								$image = 'uploads/web_slider/'.$this->upload->data()['file_name'];
+							}
+						}
+
+						$this->web_slider_model->create(array(
+							'judul' => $this->input->post('judul'),
+							'konten' => $this->input->post('konten'),
+							'tombol_teks' => $this->input->post('tombol_teks'),
+							'tombol_link' => $this->input->post('tombol_link'),
+							'image' => $image
+						));
+
+						$this->session->set_flashdata('flash_message', array('status' => 'success', 'message' => 'Data web slider berhasil ditambahkan'));
+						redirect(base_url('admin/web_slider'), 'refresh');
+					}
+					else
+					{
+						$data['page_title'] = 'Tambah Slider';
+						$this->template->admin('web_slider/add', $data);
+					}
+				}
+				else
+				{
+					$data['page_title'] = 'Tambah Slider';
+					$this->template->admin('web_slider/add', $data);
+				}
 			break;
 
 			case 'update':
+				$id = $this->web_slider_model->view($id);
+
+				if (!empty($id))
+				{
+					if ($this->input->method(TRUE) == 'POST')
+					{
+						$this->form_validation->set_rules('judul', 'Judul', 'trim|required');
+
+						if ($this->form_validation->run() == TRUE)
+						{
+							$image = NULL;
+
+							if (!empty($_FILES['image']['name'])) 
+							{
+								if ($this->upload->do_upload('image')) {
+									$image = 'uploads/web_slider/'.$this->upload->data()['file_name'];
+								}
+							}
+
+							$this->web_slider_model->update(array(
+								'judul' => $this->input->post('judul'),
+								'konten' => $this->input->post('konten'),
+								'tombol_teks' => $this->input->post('tombol_teks'),
+								'tombol_link' => $this->input->post('tombol_link'),
+								'image' => $image
+							), array('id' => $id['id']));
+						}
+						else
+						{
+
+						}
+					}
+					else
+					{
+						
+					}
+				}
+				else
+				{
+					show_404();
+				}
 			break;
 
 			case 'delete':
+				$id = $this->web_slider_model->view($id);
+
+				if (!empty($id))
+				{
+					$this->web_slider_model->delete(array('id' => $id['id']));
+					$this->session->set_flashdata('flash_message', array('status' => 'success', 'message' => 'Data web slider berhasil dihapus'));
+					redirect(base_url('admin/web_slider') ,'refresh');
+				}
+				else
+				{
+					$this->session->set_flashdata('flash_message', array('status' => 'danger', 'message' => 'Data web slider tidak ditemukan'));
+					redirect(base_url('admin/web_slider') ,'refresh');
+				}
 			break;
 			
 			default:
+				$id = $this->web_slider_model->view($id);
+
+				if (!empty($id))
+				{
+					$data['page_title'] = 'Web Slider';
+					$data['web_slider'] = $id;
+					$this->template->admin('web_slider/list', $data);
+				}
+				else
+				{
+					$data['page_title'] = 'Web Slider';
+					$data['web_slider'] = $this->web_slider_model->list();
+					$this->template->admin('web_slider/list', $data);
+				}
 			break;
 		}
 	}
