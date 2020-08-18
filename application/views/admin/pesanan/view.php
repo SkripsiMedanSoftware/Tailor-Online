@@ -45,8 +45,8 @@
 					<?php foreach ($this->detail_pesanan_model->get_where(array('pesanan' => $pesanan['id'])) as $key => $value) :?>
 					<tr>
 						<td><?php echo $key+1; ?></td>
-						<td><?php echo $value['bahan'] ?></td>
-						<td><?php echo $value['ukuran'] ?></td>
+						<td><?php echo $this->bahan_baju_model->view($value['bahan'])['jenis'].' - '.$this->bahan_baju_model->view($value['bahan'])['warna'] ?></td>
+						<td><?php echo $this->ukuran_baju_model->view($value['ukuran'])['nama'] ?></td>
 						<td><?php echo $value['jumlah'] ?></td>
 						<td>Rp.<?php echo number_format($value['subtotal'], 0, ',', '.') ?></td>
 					</tr>
