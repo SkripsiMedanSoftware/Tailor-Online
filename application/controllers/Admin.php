@@ -14,7 +14,7 @@ class Admin extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		if (!empty(aktif_sesi()) && aktif_sesi()['role'] !== 'admin') {
+		if (empty(aktif_sesi()) && aktif_sesi()['role'] !== 'admin') {
 			redirect(base_url(), 'refresh');
 		}
 	}
@@ -98,9 +98,28 @@ class Admin extends CI_Controller
 		$this->template->admin('chat');
 	}
 
-	public function web_slider()
+	/**
+	 * Web Slider
+	 * 
+	 * @param  string $option
+	 * @param  integer $id
+	 */
+	public function web_slider($option = NULL, $id = NULL)
 	{
-		$this->template->admin('chat');
+		switch ($option)
+		{
+			case 'add':
+			break;
+
+			case 'update':
+			break;
+
+			case 'delete':
+			break;
+			
+			default:
+			break;
+		}
 	}
 
 	/**
