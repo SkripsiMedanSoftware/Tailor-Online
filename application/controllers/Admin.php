@@ -215,17 +215,24 @@ class Admin extends CI_Controller
 								'konten' => $this->input->post('konten'),
 								'tombol_teks' => $this->input->post('tombol_teks'),
 								'tombol_link' => $this->input->post('tombol_link'),
-								'image' => $image
+								'image' => (!empty($image))?$image:$id['image']
 							), array('id' => $id['id']));
+
+							$this->session->set_flashdata('flash_message', array('status' => 'success', 'message' => 'Data web slider berhasil diperbaharui'));
+							redirect(base_url('admin/web_slider'), 'refresh');
 						}
 						else
 						{
-
+							$data['web_slider'] = $id;
+							$data['page_title'] = 'Perbaharui Data Slider';
+							$this->template->admin('web_slider/update', $data);
 						}
 					}
 					else
 					{
-						
+						$data['web_slider'] = $id;
+						$data['page_title'] = 'Perbaharui Data Slider';
+						$this->template->admin('web_slider/update', $data);
 					}
 				}
 				else
