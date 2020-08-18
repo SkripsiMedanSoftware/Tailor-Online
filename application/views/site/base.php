@@ -430,7 +430,24 @@
 				if (chat_room !== null) {
 					get_chat_messages(chat_room.id, 1000, 0);
 				} else {
-					console.log(chat_room)
+					if (Object.keys(user_session).length > 0) {
+						$.ajax({
+							url: '<?php echo base_url('chat/create_room') ?>',
+							type: 'POST',
+							dataType: 'JSON',
+							success: function(data) {
+								if (data.status == 'success') {
+									join_chat_room({
+										id: data.data.id,
+										status: data.data.status
+									});
+								}
+							},
+							error: function(error) {
+								console.log(error)
+							}
+						});
+					}
 				}
 
 				$chatboxMessage.keypress(function(event) { 
@@ -535,6 +552,8 @@
 									});
 								}
 							}
+						} else {
+							console.log('ada')
 						}
 					}
 				});

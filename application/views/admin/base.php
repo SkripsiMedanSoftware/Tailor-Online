@@ -330,11 +330,8 @@ $(document).ready(function() {
 									'</div>'+
 									'<div class="box-footer">'+
 										'<form action="#" method="post" class="send_message" room_id="'+room_id+'">'+
-											'<div class="input-group">'+
+											'<div class="input-group" style="width:100%;">'+
 												'<input type="text" room_id="'+room_id+'" placeholder="Tulis pesan disini ..." class="text_message form-control">'+
-												'<span class="input-group-btn">'+
-												'<button type="button" class="btn btn-primary btn-flat">Kirim</button>'+
-												'</span>'+
 											'</div>'+
 										'</form>'+
 									'</div>'+
