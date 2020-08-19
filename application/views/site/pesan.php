@@ -15,7 +15,7 @@
 	<?php if ($this->session->userdata('desain_pesanan')) : ?>
 	<div class="col-lg-4">
 		<?php foreach ($this->session->userdata('desain_pesanan') as $value) : ?>
-			<img src="<?php echo base_url('uploads/desain_pesanan/'.$value['file_name']) ?>" class="img-responsive img-thumbnail" style="height: 200px;">
+			<img src="<?php echo base_url($value) ?>" class="img-responsive img-thumbnail" style="height: 200px;">
 		<?php endforeach; ?>
 	</div>
 	<div class="col-lg-3">

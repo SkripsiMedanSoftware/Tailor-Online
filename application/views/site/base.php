@@ -21,6 +21,7 @@
 		<script type="text/javascript" src="<?php echo base_url('assets/aditii-w3layout/') ?>js/modernizr.custom.28468.js"></script>
 		<script type="text/javascript" src="<?php echo base_url('assets/aditii-w3layout/') ?>js/jquery.cslider.js"></script>
 		<script type="text/javascript" src="<?php echo $this->config->item('socketio_host').':'.$this->config->item('socketio_port'); ?>/socket.io/socket.io.js"></script>
+		<?php if ($this->router->fetch_method() == 'index') : ?>
 		<script type="text/javascript">
 		$(function() {
 			$('#da-slider').cslider();
@@ -44,9 +45,9 @@
 				pagination : false,
 				paginationNumbers: false
 			});
-		
 		});
 		</script>
+		<?php endif; ?>
 		<!-- //Owl Carousel Assets -->
 		<!-- start top_js_button -->
 		<script type="text/javascript" src="<?php echo base_url('assets/aditii-w3layout/') ?>js/move-top.js"></script>

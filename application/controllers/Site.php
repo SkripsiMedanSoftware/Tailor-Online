@@ -24,6 +24,28 @@ class Site extends CI_Controller
 		$this->template->site('home', $data);
 	}
 
+	public function katalog($id = NULL)
+	{
+		$id = $this->katalog_produk_model->view($id);
+
+		if (!empty($id))
+		{
+			$data['page_title'] =  $id['nama'];
+			$data['katalog'] = $id;
+			$this->template->site('katalog_detail', $data);
+		}
+		else
+		{
+			show_404();
+		}
+	}
+
+	public function order_from_katalog()
+	{
+		$this->session->set_userdata('desain_pesanan', $this->input->post('desain'));
+		redirect(base_url('site/pesan'),'refresh');
+	}
+
 	public function pesan()
 	{
 		$data['page_title'] = 'Pesan Baju';
@@ -56,7 +78,7 @@ class Site extends CI_Controller
 						$_FILES['file']['size'] = $_FILES['desain']['size'][$i];
 
 						if ($this->upload->do_upload('file')) {
-							$desain[$i] = $this->upload->data();
+							$desain[$i] = 'uploads/desain_pesanan/'.$this->upload->data()['file_name'];
 						}
 					}
 				}
@@ -208,7 +230,7 @@ class Site extends CI_Controller
 							foreach ($this->session->userdata('desain_pesanan') as $desain) {
 								$this->desain_pesanan_model->create(array(
 									'pesanan' => $pesanan,
-									'foto' => 'uploads/desain_pesanan/'.$desain['file_name']
+									'foto' => $desain
 								));	
 							}
 
